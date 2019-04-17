@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/youtube_icon"
+        android:layout_width="108dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        android:padding="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/ic_youtube_color_icon" />
+
+    <ImageView
+        android:id="@+id/search_btn"
+        android:layout_width="108dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_bg"
+        android:padding="10dp"
+        android:src="@drawable/lb_ic_in_app_search"
+        app:layout_constraintStart_toStartOf="@+id/youtube_icon"
+        app:layout_constraintTop_toBottomOf="@+id/youtube_icon"
+        android:nextFocusDown="@+id/home_btn"
+        android:focusable="true"
+        android:clickable="true" />
+
+    <ImageView
+        android:id="@+id/home_btn"
+        android:layout_width="108dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_bg"
+        android:padding="10dp"
+        android:src="@drawable/ic_home_white_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_btn"
+        android:nextFocusDown="@+id/subscribe_btn"
+        android:nextFocusUp="@+id/search_btn"
+        android:focusable="true"
+        android:clickable="true"
+        android:focusedByDefault="true"/>
+
+    <ImageView
+        android:id="@+id/subscribe_btn"
+        android:layout_width="108dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_bg"
+        android:padding="10dp"
+        android:src="@drawable/ic_subscriptions_white_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/home_btn"
+        android:nextFocusDown="@+id/folder_btn"
+        android:nextFocusUp="@+id/home_btn"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <ImageView
+        android:id="@+id/folder_btn"
+        android:layout_width="108dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_bg"
+        android:padding="10dp"
+        android:src="@drawable/ic_folder_white_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subscribe_btn"
+        android:nextFocusDown="@+id/setting_btn"
+        android:nextFocusUp="@+id/subscribe_btn"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <ImageView
+        android:id="@+id/setting_btn"
+        android:layout_width="108dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_bg"
+        android:padding="10dp"
+        android:src="@drawable/ic_settings_white_24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:nextFocusUp="@+id/folder_btn"
+        android:focusable="true"
+        android:clickable="true" />
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/primary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/youtube_icon"
+        tools:context=".YoutubeActivity"
+        tools:layout_editor_absoluteY="8dp" />
+</android.support.constraint.ConstraintLayout>
+
+
+

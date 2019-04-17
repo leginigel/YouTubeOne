@@ -1,0 +1,5 @@
+<resources>
+    <color name="primary">#f00</color>
+    <color name="button_focused">#ffffffff</color>
+    <color name="button_default">#ff000000</color>
+</resources>
