@@ -1,5 +1,6 @@
 <resources>
     <color name="primary">#f00</color>
-    <color name="button_focused">#ffffffff</color>
-    <color name="button_default">#ff000000</color>
+    <color name="button_focused">#ff333333</color>
+    <color name="button_default">#ff121212</color>
+    <color name="left_nav">#ff121212</color>
 </resources>
