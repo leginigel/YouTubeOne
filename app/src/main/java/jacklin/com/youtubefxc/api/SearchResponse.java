@@ -95,6 +95,8 @@ public class SearchResponse {
             String publishedAt;
             @SerializedName("description")
             String description;
+            @SerializedName("channelTitle")
+            private String channelTitle;
 
             public String getPublishedAt() {
                 return publishedAt;
@@ -106,6 +108,10 @@ public class SearchResponse {
 
             public String getDescription() {
                 return description;
+            }
+
+            public String getChannelTitle() {
+                return channelTitle;
             }
         }
     }

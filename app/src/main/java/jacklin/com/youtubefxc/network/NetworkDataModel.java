@@ -13,22 +13,23 @@ import retrofit2.Response;
 public class NetworkDataModel {
     private YoutubeService youtubeService = RetrofitManager.getInstance().getAPI();
 
-    public void searchVideo(String query, final onDataReadyCallback callback){
+    public void searchVideo(String query, final onSearchDataReadyCallback callback){
         youtubeService.searchVideo(query)
                 .enqueue(new Callback<SearchResponse>() {
                     @Override
                     public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                        callback.onDataReady(response.body().getItems());
+                        Log.d("retrofit response ", String.valueOf(response.body()));
+                        callback.onSearchDataReady(response.body().getItems());
                     }
 
                     @Override
                     public void onFailure(Call<SearchResponse> call, Throwable t) {
-                        Log.d("retro res ", "Failure" + t);
+                        Log.d("retrofit response ", "Failure" + t);
                     }
                 });
     }
 
-    public interface onDataReadyCallback{
-        void onDataReady(List<SearchResponse.Items> data);
+    public interface onSearchDataReadyCallback {
+        void onSearchDataReady(List<SearchResponse.Items> data);
     }
 }

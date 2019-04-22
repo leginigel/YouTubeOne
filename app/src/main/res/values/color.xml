@@ -3,4 +3,7 @@
     <color name="button_focused">#ff333333</color>
     <color name="button_default">#ff121212</color>
     <color name="left_nav">#ff121212</color>
+    <color name="background">#ff2e2e2e</color>
+
+    <color name="card_content">#ffaaaaaa</color>
 </resources>

@@ -33,7 +33,7 @@ public class YoutubeActivity extends FragmentActivity {
         homeIcon.setOnFocusChangeListener((v, hasFocus) -> {
             if(hasFocus) {
                 Log.d("Home", "Icon on Focus");
-//                getSupportFragmentManager().beginTransaction().show(youtubeFragment).commitNow();
+                getSupportFragmentManager().beginTransaction().show(youtubeFragment).commitNow();
             }
 //            else
 //                getSupportFragmentManager().beginTransaction().hide(youtubeFragment).commitNow();
@@ -42,7 +42,7 @@ public class YoutubeActivity extends FragmentActivity {
         searchIcon.setOnFocusChangeListener((v, hasFocus) -> {
             if(hasFocus) {
                 Log.d("Search", "Icon on Focus");
-//                getSupportFragmentManager().beginTransaction().show(searchFragment).commitNow();
+                getSupportFragmentManager().beginTransaction().show(searchFragment).commitNow();
             }
 //            else
 //                getSupportFragmentManager().beginTransaction().hide(searchFragment).commitNow();
