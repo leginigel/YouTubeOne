@@ -24,7 +24,8 @@ public class YoutubeViewModel extends ViewModel {
         if(videos == null){
             videos = new MutableLiveData<>();
             List<YouTubeVideo> list = new ArrayList<>();
-            list.add(new YouTubeVideo("id","test", "test", 0, "now"));
+            for (int i = 0;i < 3;i++)
+                list.add(new YouTubeVideo("id","test", "test", 0, "now"));
             videos.setValue(list);
         }
         return videos;}

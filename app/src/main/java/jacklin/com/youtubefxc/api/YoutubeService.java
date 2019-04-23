@@ -12,4 +12,11 @@ public interface YoutubeService {
 
     @GET("search?part=snippet&maxResults=15&key=" + key)
     Call<SearchResponse> searchVideo(@Query("q") String query);
+
+    //RxJava2
+    @GET("search?part=snippet&maxResults=15&key=" + key)
+    Observable<Response<SearchResponse>> searchVideoRx(@Query("q") String query);
+
+    @GET("videos?part=snippet%2CcontentDetails%2Cstatistics&key=" + key)
+    Observable<Response<VideoResponse>>  videoDetail(@Query("id") String id);
 }

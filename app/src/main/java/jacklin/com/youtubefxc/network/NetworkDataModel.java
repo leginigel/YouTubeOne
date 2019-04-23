@@ -4,7 +4,9 @@ import android.util.Log;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import jacklin.com.youtubefxc.api.SearchResponse;
+import jacklin.com.youtubefxc.api.VideoResponse;
 import jacklin.com.youtubefxc.api.YoutubeService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -31,5 +33,14 @@ public class NetworkDataModel {
 
     public interface onSearchDataReadyCallback {
         void onSearchDataReady(List<SearchResponse.Items> data);
+    }
+
+    //RxJava2
+    public Observable<Response<SearchResponse>> searchVideoRx(String query){
+        return youtubeService.searchVideoRx(query);
+    }
+
+    public Observable<Response<VideoResponse>> videoDetail(String id){
+        return youtubeService.videoDetail(id);
     }
 }

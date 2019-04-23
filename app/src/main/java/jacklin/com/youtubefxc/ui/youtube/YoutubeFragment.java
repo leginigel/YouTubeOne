@@ -90,7 +90,7 @@ public class YoutubeFragment extends RowsSupportFragment {
             Log.d("Fragment ViewModel", "notify");
         });
 //        mViewModel.search("End Game");
-        mVideoList = mViewModel.getVideoList().getValue();
+//        mVideoList = mViewModel.getVideoList().getValue();
 
         setOnItemViewSelectedListener(new YouTubeCardSelectedListener());
     }
