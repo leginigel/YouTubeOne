@@ -86,21 +86,21 @@ public class VideoResponse {
 
         public class Statistics{
             @SerializedName("viewCount")
-            String viewCount;
+            int viewCount;
             @SerializedName("likeCount")
-            String likeCount;
+            int likeCount;
             @SerializedName("dislikeCount")
-            String dislikeCount;
+            int dislikeCount;
 
-            public String getViewCount() {
+            public int getViewCount() {
                 return viewCount;
             }
 
-            public String getLikeCount() {
+            public int getLikeCount() {
                 return likeCount;
             }
 
-            public String getDislikeCount() {
+            public int getDislikeCount() {
                 return dislikeCount;
             }
         }

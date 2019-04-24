@@ -89,8 +89,8 @@ public class YoutubeFragment extends RowsSupportFragment {
             mCardsAdapter.notifyArrayItemRangeChanged(0, 1);
             Log.d("Fragment ViewModel", "notify");
         });
-//        mViewModel.search("End Game");
-//        mVideoList = mViewModel.getVideoList().getValue();
+        mViewModel.searchRx("Surfing");
+        mVideoList = mViewModel.getVideoList().getValue();
 
         setOnItemViewSelectedListener(new YouTubeCardSelectedListener());
     }

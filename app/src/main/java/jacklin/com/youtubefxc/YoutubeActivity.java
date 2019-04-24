@@ -24,7 +24,7 @@ public class YoutubeActivity extends FragmentActivity {
         YoutubeFragment youtubeFragment = YoutubeFragment.newInstance();
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, searchFragment)
+                    .replace(R.id.container, youtubeFragment)
                     .commitNow();
         }
 
@@ -33,7 +33,7 @@ public class YoutubeActivity extends FragmentActivity {
         homeIcon.setOnFocusChangeListener((v, hasFocus) -> {
             if(hasFocus) {
                 Log.d("Home", "Icon on Focus");
-//                getSupportFragmentManager().beginTransaction().show(youtubeFragment).commitNow();
+                getSupportFragmentManager().beginTransaction().show(youtubeFragment).commitNow();
             }
 //            else
 //                getSupportFragmentManager().beginTransaction().hide(youtubeFragment).commitNow();

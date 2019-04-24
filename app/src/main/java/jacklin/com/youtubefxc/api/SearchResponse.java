@@ -78,6 +78,8 @@ public class SearchResponse {
             private String kind;
             @SerializedName("videoId")
             private String videoId;
+            @SerializedName("channelId")
+            private String channelId;
 
             public String getKind() {
                 return kind;
@@ -85,6 +87,10 @@ public class SearchResponse {
 
             public String getVideoId() {
                 return videoId;
+            }
+
+            public String getChannelId() {
+                return channelId;
             }
         }
 

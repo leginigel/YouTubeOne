@@ -1,30 +1,42 @@
 package jacklin.com.youtubefxc.ui.search;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Function;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import jacklin.com.youtubefxc.R;
 import jacklin.com.youtubefxc.api.SearchResponse;
 import jacklin.com.youtubefxc.api.VideoResponse;
+import jacklin.com.youtubefxc.data.YouTubeVideo;
+import jacklin.com.youtubefxc.network.NetworkDataModel;
 import jacklin.com.youtubefxc.viewmodel.SearchViewModel;
 import retrofit2.Response;
 
 public class SearchFragment extends Fragment {
 
     private SearchViewModel mViewModel;
-    private CompositeDisposable mDisposable;
+    private List<YouTubeVideo> mVideoList = new ArrayList<>();
+    private ArrayObjectAdapter mCardsAdapter;
+    private ArrayObjectAdapter mRowsAdapter;
 
     public static SearchFragment newInstance() {
         return new SearchFragment();
@@ -68,28 +80,85 @@ public class SearchFragment extends Fragment {
 //
 //                            }
 //                        })
-
-//        mDisposable.add(
-                mViewModel.searchVideo("End Game")
-                        .subscribeOn(Schedulers.io())
-                        .map(searchResponseResponse -> searchResponseResponse.body().getItems())
-                        .flatMap(s -> Observable.fromIterable(s))
-                        .map(item -> item.getId())
-                        .flatMap(new Function<SearchResponse.Items.ID, ObservableSource<Response<VideoResponse>>>() {
-                            @Override
-                            public ObservableSource<Response<VideoResponse>> apply(SearchResponse.Items.ID id) throws Exception {
-                                return mViewModel.videoDetail(id.getVideoId());
-                            }
-                        })
+//
+//        NetworkDataModel n = new NetworkDataModel();
+//        n.searchVideoRx("End Game")
+//                        .subscribeOn(Schedulers.io())
+//                        .map(searchResponseResponse -> searchResponseResponse.body().getItems())
+//                        .flatMap(s -> Observable.fromIterable(s))
+//                        .map(item -> item.getId())
+//                        .flatMap(new Function<SearchResponse.Items.ID, ObservableSource<Response<VideoResponse>>>() {
+//                            @Override
+//                            public ObservableSource<Response<VideoResponse>> apply(SearchResponse.Items.ID id) throws Exception {
+//                                return mViewModel.videoDetail(id.getVideoId());
+//                            }
+//                        })
 //                        .doOnNext(response -> Log.d("test", "onActivityCreated: : " + response.body().getItems().get(0).getSnippet().getTitle()))
-                        .subscribe();
-//        );
+//                        .subscribe();
 
+        List<SearchResponse.Items> temp = new ArrayList<>();
+        mViewModel.getVideoList().observe(getActivity(), (videos) ->{
+            mVideoList = videos;
+            mCardsAdapter.clear();
+            for (YouTubeVideo v : mVideoList){
+                mCardsAdapter.add(v);
+            }
+            mCardsAdapter.notifyArrayItemRangeChanged(0, 1);
+            Log.d("Fragment ViewModel", "notify");
+        });
+        mViewModel.searchVideo("suzy");
+        mVideoList = mViewModel.getVideoList().getValue();
+//        mViewModel.searchVideo("End Game")
+//                .flatMap(new Function<Response<SearchResponse>, ObservableSource<SearchResponse.Items>>() {
+//                    @Override
+//                    public ObservableSource<SearchResponse.Items> apply(Response<SearchResponse> searchResponse) throws Exception {
+//                        List<SearchResponse.Items> items = searchResponse.body().getItems();
+//                        temp.addAll(items);
+//                        return Observable.fromIterable(items);
+//                    }
+//                })
+//                .flatMap(new Function<SearchResponse.Items, ObservableSource<Response<VideoResponse>>>() {
+//                    @Override
+//                    public ObservableSource<Response<VideoResponse>> apply(SearchResponse.Items items) throws Exception {
+//                        return mViewModel.videoDetail(items.getId().getVideoId());
+//                    }
+//                })
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new DisposableObserver<Response<VideoResponse>>() {
+//                    @RequiresApi(api = Build.VERSION_CODES.N)
+//                    @Override
+//                    public void onNext(Response<VideoResponse> videoResponse) {
+//                        if(videoResponse.code() == 200) {
+//                            Log.d("test", "onActivityCreated:"
+//                                    + videoResponse.body().getItems().get(0).getSnippet().getTitle());
+//                            temp.forEach(i -> {
+//                                if(i.getId().getVideoId() != null &&
+//                                        i.getId().getVideoId().equals(videoResponse.body().getItems().get(0).getId())) {
+//                                    Log.d("test", "onActivityCreated:"
+//                                            + videoResponse.body().getItems().get(0).getSnippet().getTitle());
+//                                    new YouTubeVideo(
+//                                            i.getId().getVideoId(),
+//                                            i.getSnippet().getTitle(),
+//                                            i.getSnippet().getChannelTitle(),
+//                                            videoResponse.body().getItems().get(0).getStatistics().getViewCount(),
+//                                            videoResponse.body().getItems().get(0).getContentDetails().getDuration()
+//                                    );
+//                                }
+//                            });
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//
+//                    }
+//                });
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mDisposable.clear();
-    }
+    
 }
