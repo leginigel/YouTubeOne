@@ -5,5 +5,9 @@
     <color name="left_nav">#ff121212</color>
     <color name="background">#ff2e2e2e</color>
 
+    <color name="btn_text">#ff969696</color>
+    <color name="btn_text_bg">#ffebebeb</color>
+
+    <color name="card_loading">#ff333333</color>
     <color name="card_content">#ffaaaaaa</color>
 </resources>

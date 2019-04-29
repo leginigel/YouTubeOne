@@ -1,15 +1,13 @@
 package jacklin.com.youtubefxc;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 
 import jacklin.com.youtubefxc.ui.search.SearchFragment;
 import jacklin.com.youtubefxc.ui.youtube.YoutubeFragment;
+import jacklin.com.youtubefxc.ui.youtube.YoutubeRowFragment;
 
 public class YoutubeActivity extends FragmentActivity {
 
@@ -22,9 +20,10 @@ public class YoutubeActivity extends FragmentActivity {
 
         SearchFragment searchFragment = SearchFragment.newInstance();
         YoutubeFragment youtubeFragment = YoutubeFragment.newInstance();
+//        YoutubeRowFragment youtubeRowFragment = YoutubeRowFragment.newInstance();
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, youtubeFragment)
+                    .replace(R.id.container_home, youtubeFragment)
                     .commitNow();
         }
 
@@ -36,7 +35,7 @@ public class YoutubeActivity extends FragmentActivity {
                 getSupportFragmentManager().beginTransaction().show(youtubeFragment).commitNow();
             }
 //            else
-//                getSupportFragmentManager().beginTransaction().hide(youtubeFragment).commitNow();
+//                getSupportFragmentManager().beginTransaction().hide(youtubeRowFragment).commitNow();
         });
 
         searchIcon.setOnFocusChangeListener((v, hasFocus) -> {

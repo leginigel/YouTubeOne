@@ -35,7 +35,7 @@ public class SearchViewModel extends ViewModel {
             videos = new MutableLiveData<>();
             List<YouTubeVideo> list = new ArrayList<>();
             for (int i = 0;i < 3;i++)
-                list.add(new YouTubeVideo("id","test", "test", 0, "now"));
+                list.add(new YouTubeVideo("id","test", "test", 0, "now", null));
             videos.setValue(list);
         }
         return videos;
@@ -80,7 +80,8 @@ public class SearchViewModel extends ViewModel {
                                                     i.getSnippet().getTitle(),
                                                     i.getSnippet().getChannelTitle(),
                                                     videoResponse.body().getItems().get(0).getStatistics().getViewCount(),
-                                                    videoResponse.body().getItems().get(0).getContentDetails().getDuration()
+                                                    videoResponse.body().getItems().get(0).getContentDetails().getDuration(),
+                                                    videoResponse.body().getItems().get(0).getSnippet().getPublishedAt()
                                             ));
                                 }
                             });

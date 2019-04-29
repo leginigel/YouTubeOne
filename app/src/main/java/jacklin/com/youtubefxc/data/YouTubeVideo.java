@@ -12,12 +12,15 @@ public class YouTubeVideo {
 
     private String time;
 
-    public YouTubeVideo(String id, String title, String channel, int number_views, String time) {
+    private String duration;
+
+    public YouTubeVideo(String id, String title, String channel, int number_views, String time, String duration) {
         this.id = id;
         this.title = title;
         this.channel = channel;
         this.number_views = number_views;
         this.time = time;
+        this.duration = duration;
     }
 
     public String getId() {
@@ -38,5 +41,9 @@ public class YouTubeVideo {
 
     public String getTime() {
         return time;
+    }
+
+    public String getDuration() {
+        return duration;
     }
 }

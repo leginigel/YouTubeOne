@@ -102,59 +102,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/top_nav"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/left_up_nav"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <Button
-            android:id="@+id/recommend_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
-            android:nextFocusLeft="@id/home_btn"
-            android:text="@string/recommended" />
-
-        <Button
-            android:id="@+id/latest_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="@string/latest" />
-
-        <Button
-            android:id="@+id/music_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="@string/music" />
-
-        <Button
-            android:id="@+id/entertainment_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="@string/entertainment" />
-
-        <Button
-            android:id="@+id/gaming_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="@string/gaming" />
-    </LinearLayout>
-
     <FrameLayout
-        android:id="@+id/container"
+        android:id="@+id/container_home"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/left_up_nav"
-        app:layout_constraintTop_toBottomOf="@+id/top_nav"
+        app:layout_constraintTop_toBottomOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:context=".YoutubeActivity" />
 
