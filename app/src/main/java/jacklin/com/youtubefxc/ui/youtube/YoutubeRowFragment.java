@@ -27,15 +27,18 @@ import java.util.List;
 
 import jacklin.com.youtubefxc.R;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
+import jacklin.com.youtubefxc.ui.CustomCardView;
 import jacklin.com.youtubefxc.ui.YouTubeCardPresenter;
 import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
 
 public class YoutubeRowFragment extends RowsSupportFragment {
 
+    private final static String TAG = YoutubeRowFragment.class.getSimpleName();
     private YoutubeViewModel mViewModel;
     private List<YouTubeVideo> mVideoList = new ArrayList<>();
     private ArrayObjectAdapter mCardsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
+    private ListRowPresenter mListRowPresenter;
 
     public static YoutubeRowFragment newInstance() {
         return new YoutubeRowFragment();
@@ -61,11 +64,14 @@ public class YoutubeRowFragment extends RowsSupportFragment {
             }
         }
 
-        ListRowPresenter listRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_LARGE);
-//        listRowPresenter.setShadowEnabled(false);
-        listRowPresenter.setSelectEffectEnabled(false);
-        mRowsAdapter = new ArrayObjectAdapter(listRowPresenter);
+        mListRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_XSMALL);
+
+//        mListRowPresenter.setShadowEnabled(false);
+        mListRowPresenter.setSelectEffectEnabled(false);
+        mRowsAdapter = new ArrayObjectAdapter(mListRowPresenter);
         for (int i = 0; i < 2; i++) {
+            HeaderItem headerItem = new HeaderItem("test");
+
             ListRow row = new ListRow(new HeaderItem("Row " + i), mCardsAdapter);
             mRowsAdapter.add(row);
         }
@@ -97,6 +103,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     private final class YouTubeCardSelectedListener implements OnItemViewSelectedListener{
 
         private ImageCardView imgCard = null;
+//        private CustomCardView imgCard = null;
 
         @Override
         public void onItemSelected(Presenter.ViewHolder viewHolder, Object o,
@@ -109,6 +116,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
                     ((TextView) imgCard.findViewById(R.id.title_text))
                             .setTextColor(Color.WHITE);
                 }
+//                Log.d(TAG, "Selected");
 //                imgCard = (ImageCardView) viewHolder.view;
                 imgCard = (ImageCardView) cardViewHolder.getImageCardView();
                 imgCard.setInfoAreaBackgroundColor(Color.WHITE);

@@ -1,33 +1,16 @@
 package jacklin.com.youtubefxc.ui;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
 import android.support.v17.leanback.widget.BaseCardView;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
 import android.text.Html;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 
 import jacklin.com.youtubefxc.R;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
@@ -46,6 +29,22 @@ public class YouTubeCardPresenter extends Presenter {
         ImageCardView imageCardView = view.findViewById(R.id.img_card_view);
 //        ImageCardView imageCardView = new ImageCardView(mContext);
 
+//        CustomCardView customCardView = new CustomCardView(mContext);
+//        customCardView.setNextFocusLeftId(R.id.home_btn);
+//        customCardView.setCardType(ImageCardView.CARD_TYPE_INFO_UNDER);
+//        customCardView.setInfoVisibility(BaseCardView.CARD_REGION_VISIBLE_ACTIVATED);
+//        customCardView.setFocusable(true);
+//        customCardView.setFocusableInTouchMode(true);
+//        customCardView.setMainImageDimensions(500, 281);
+//        customCardView.setInfoAreaBackgroundColor(mContext.getResources().getColor(R.color.background));
+//        customCardView.setBackgroundColor(mContext.getResources().getColor(R.color.card_loading));
+//
+//        ((TextView) customCardView.findViewById(R.id.title_text)).setMaxLines(2);
+//        ((TextView) customCardView.findViewById(R.id.title_text)).setTextSize(20);
+//        ((TextView) customCardView.findViewById(R.id.content_text)).setLines(2);
+//        ((TextView) customCardView.findViewById(R.id.content_text)).setTextSize(14);
+//        ((TextView) customCardView.findViewById(R.id.content_text))
+//                .setTextColor(mContext.getResources().getColor(R.color.card_content));
         return new CardViewHolder(view);
     }
 
@@ -63,6 +62,7 @@ public class YouTubeCardPresenter extends Presenter {
         }
 
         ImageCardView imgCard = cardViewHolder.mImageCardView;
+//        CustomCardView imgCard = cardViewHolder.mImageCardView;
 
         imgCard.setTitleText(Html.fromHtml(youTubeVideo.getTitle()));
         imgCard.setContentText(youTubeVideo.getChannel() + "\n"
@@ -71,7 +71,7 @@ public class YouTubeCardPresenter extends Presenter {
 
         Glide.with(mContext)
                 .asBitmap()
-//                .placeholder(mContext.getResources().getDrawable(R.drawable.ic_folder_white_24dp))
+//                .placeholder(mContext.getResources().getDrawable(R.drawable.ic_folder_24dp))
                 .load("https://i.ytimg.com/vi/"+ youTubeVideo.getId() +"/0.jpg")
                 .into(imgCard.getMainImageView());
     }
@@ -87,9 +87,10 @@ public class YouTubeCardPresenter extends Presenter {
 
         private ImageCardView mImageCardView;
         private TextView mTimeStamp;
+//        private CustomCardView mImageCardView;
         public CardViewHolder(View view) {
             super(view);
-//            mImageCardView = (ImageCardView) view;
+//            mImageCardView = (CustomCardView) view;
             mImageCardView = (ImageCardView) view.findViewById(R.id.img_card_view);
             mTimeStamp = view.findViewById(R.id.img_card_time_stamp);
 
