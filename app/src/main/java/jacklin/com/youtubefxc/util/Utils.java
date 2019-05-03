@@ -4,6 +4,7 @@ import android.animation.TimeAnimator;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v17.leanback.widget.ShadowOverlayContainer;
 import android.support.v17.leanback.widget.ShadowOverlayHelper;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -18,7 +19,47 @@ import java.util.concurrent.TimeUnit;
 public class Utils {
 
     public static final String DurationConverter(String duration) {
-        return null;
+        String hour = "", minute = "", second = "";
+        int hasH, hasM, hasS;
+        hasH = duration.indexOf('H');
+
+        hasM = duration.indexOf('M');
+
+        hasS = duration.indexOf('S');
+
+        if(hasH != -1){
+            hour = duration.substring(2, hasH) + ":";
+        }
+        if(hasS != -1){
+            if(hasM != -1) {
+                second = duration.substring(hasM + 1, hasS);
+            }
+            else if(hasH != -1){
+                second = duration.substring(hasH + 1, hasS);
+            }
+            else {
+                second = duration.substring(2, hasS);
+            }
+            if(second.length() == 1){
+                second = "0" + second;
+            }
+        }
+        if(hasM != -1){
+            if(hasH != -1){
+                minute = duration.substring(hasH + 1, hasM) + ":";
+            }
+            else{
+                minute = duration.substring(2, hasM) + ":";
+            }
+        }
+        else {
+            if(hasH != -1)
+                minute = "00" + ":";
+            else
+                minute = "0" + ":";
+        }
+
+        return hour + minute + second;
     }
 
     public static final String CountConverter(int count) {

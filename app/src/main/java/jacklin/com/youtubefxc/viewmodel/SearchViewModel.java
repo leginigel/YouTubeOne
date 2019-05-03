@@ -41,51 +41,54 @@ public class SearchViewModel extends ViewModel {
         return videos;
     }
 
-    public void searchVideo(String query){
+    public void searchRx(String query){
         List<SearchResponse.Items> temp = new ArrayList<>();
         List<YouTubeVideo> ytv = new ArrayList<>();
 //        disposable.add(
         networkDataModel.searchVideoRx(query)
-                .flatMap(new Function<Response<SearchResponse>, ObservableSource<SearchResponse.Items>>() {
+                .flatMap(new Function<Response<SearchResponse>, Observable<String>>() {
                     @Override
-                    public ObservableSource<SearchResponse.Items> apply(Response<SearchResponse> searchResponse) throws Exception {
+                    public Observable<String> apply(Response<SearchResponse> searchResponse) throws Exception {
                         List<SearchResponse.Items> items = searchResponse.body().getItems();
                         temp.addAll(items);
-                        return Observable.fromIterable(items);
+                        String multi_id = "";
+                        for (SearchResponse.Items i : items){
+                            multi_id = multi_id + i.getId().getVideoId() + ",";
+                        }
+                        return Observable.just(multi_id);
                     }
                 })
-                .flatMap(new Function<SearchResponse.Items, ObservableSource<Response<VideoResponse>>>() {
+                .flatMap(new Function<String, ObservableSource<Response<VideoResponse>>>() {
                     @Override
-                    public ObservableSource<Response<VideoResponse>> apply(SearchResponse.Items items) throws Exception {
-                        return networkDataModel.videoDetail(items.getId().getVideoId());
+                    public ObservableSource<Response<VideoResponse>> apply(String s) throws Exception {
+                        return networkDataModel.videoDetail(s);
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<Response<VideoResponse>>() {
+                .filter(r-> r.code() == 200)
+                .subscribe(new DisposableObserver<Response<VideoResponse>>() {
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onNext(Response<VideoResponse> videoResponse) {
-                        if(videoResponse.code() == 200) {
                             Log.d("YoutubeViewModel", "videoResponse : "
                                     + videoResponse.body().getItems().get(0).getSnippet().getTitle());
-                            temp.forEach(i -> {
-                                if(i.getId().getVideoId() != null &&
-                                        i.getId().getVideoId().equals(videoResponse.body().getItems().get(0).getId())) {
+                            for (int i = 0;i < temp.size();i++){
+                                if(temp.get(i).getId().getVideoId() != null &&
+                                        temp.get(i).getId().getVideoId().equals(videoResponse.body().getItems().get(i).getId())) {
                                     Log.d("test", "onActivityCreated:"
-                                            + videoResponse.body().getItems().get(0).getSnippet().getTitle());
+                                            + videoResponse.body().getItems().get(i).getSnippet().getTitle());
                                     ytv.add(
                                             new YouTubeVideo(
-                                                    i.getId().getVideoId(),
-                                                    i.getSnippet().getTitle(),
-                                                    i.getSnippet().getChannelTitle(),
-                                                    videoResponse.body().getItems().get(0).getStatistics().getViewCount(),
-                                                    videoResponse.body().getItems().get(0).getContentDetails().getDuration(),
-                                                    videoResponse.body().getItems().get(0).getSnippet().getPublishedAt()
+                                                    temp.get(i).getId().getVideoId(),
+                                                    temp.get(i).getSnippet().getTitle(),
+                                                    temp.get(i).getSnippet().getChannelTitle(),
+                                                    videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
+                                                    videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
+                                                    videoResponse.body().getItems().get(i).getContentDetails().getDuration()
                                             ));
                                 }
-                            });
-                        }
+                            }
                     }
 
                     @Override

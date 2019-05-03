@@ -106,7 +106,7 @@ public class SearchFragment extends Fragment {
             mCardsAdapter.notifyArrayItemRangeChanged(0, 1);
             Log.d("Fragment ViewModel", "notify");
         });
-        mViewModel.searchVideo("suzy");
+//        mViewModel.searchVideo("suzy");
         mVideoList = mViewModel.getVideoList().getValue();
 //        mViewModel.searchVideo("End Game")
 //                .flatMap(new Function<Response<SearchResponse>, ObservableSource<SearchResponse.Items>>() {

@@ -80,6 +80,8 @@ public class SearchResponse {
             private String videoId;
             @SerializedName("channelId")
             private String channelId;
+            @SerializedName("playlistId")
+            private String playlistId;
 
             public String getKind() {
                 return kind;
@@ -91,6 +93,10 @@ public class SearchResponse {
 
             public String getChannelId() {
                 return channelId;
+            }
+
+            public String getPlaylistId() {
+                return playlistId;
             }
         }
 

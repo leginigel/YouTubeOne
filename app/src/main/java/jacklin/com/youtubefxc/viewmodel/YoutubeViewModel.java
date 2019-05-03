@@ -17,11 +17,16 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import jacklin.com.youtubefxc.api.PlaylistItems;
 import jacklin.com.youtubefxc.api.SearchResponse;
 import jacklin.com.youtubefxc.api.VideoResponse;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
 import jacklin.com.youtubefxc.network.NetworkDataModel;
 import retrofit2.Response;
+
+/**
+ *  ViewModel for {@link jacklin.com.youtubefxc.ui.youtube.YoutubeRowFragment}
+ */
 
 public class YoutubeViewModel extends ViewModel {
 
@@ -36,7 +41,9 @@ public class YoutubeViewModel extends ViewModel {
             videos = new MutableLiveData<>();
             List<YouTubeVideo> list = new ArrayList<>();
             for (int i = 0;i <= 3;i++)
-                list.add(new YouTubeVideo("id","test", "test", 0, "now",null));
+                list.add(new YouTubeVideo(null,
+                        "JJJJJJJJJJJJJJJ",
+                        "fxc", 0, "now",null));
             videos.setValue(list);
         }
         return videos;
@@ -72,19 +79,84 @@ public class YoutubeViewModel extends ViewModel {
         });
     }
 
-    public void searchRx(String query){
-        List<SearchResponse.Items> temp = new ArrayList<>();
+//    public void searchRx(String query){
+//        List<SearchResponse.Items> temp = new ArrayList<>();
+//        List<YouTubeVideo> ytv = new ArrayList<>();
+////        disposable.add(
+//                networkDataModel.searchVideoRx(query)
+//                .flatMap(new Function<Response<SearchResponse>, Observable<String>>() {
+//                    @Override
+//                    public Observable<String> apply(Response<SearchResponse> searchResponse) throws Exception {
+//                        List<SearchResponse.Items> items = searchResponse.body().getItems();
+//                        temp.addAll(items);
+//                        String multi_id = "";
+//                        for (SearchResponse.Items i : items){
+//                            multi_id = multi_id + i.getId().getVideoId() + ",";
+//                        }
+//                        return Observable.just(multi_id);
+//                    }
+//                })
+//                .flatMap(new Function<String, ObservableSource<Response<VideoResponse>>>() {
+//                    @Override
+//                    public ObservableSource<Response<VideoResponse>> apply(String s) throws Exception {
+//                        return networkDataModel.videoDetail(s);
+//                    }
+//                })
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeWith(new DisposableObserver<Response<VideoResponse>>() {
+//                    @RequiresApi(api = Build.VERSION_CODES.N)
+//                    @Override
+//                    public void onNext(Response<VideoResponse> videoResponse) {
+//                        if(videoResponse.code() == 200) {
+//                            Log.d("YoutubeViewModel", "videoResponse : "
+//                                    + videoResponse.body().getItems().get(0).getSnippet().getTitle());
+//                            for (int i = 0;i < temp.size();i++){
+//                                if(temp.get(i).getId().getVideoId() != null &&
+//                                        temp.get(i).getId().getVideoId().equals(videoResponse.body().getItems().get(i).getId())) {
+//                                    Log.d("test", "onActivityCreated:"
+//                                            + videoResponse.body().getItems().get(i).getSnippet().getTitle());
+//                                    ytv.add(
+//                                    new YouTubeVideo(
+//                                            temp.get(i).getId().getVideoId(),
+//                                            temp.get(i).getSnippet().getTitle(),
+//                                            temp.get(i).getSnippet().getChannelTitle(),
+//                                            videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
+//                                            videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
+//                                            videoResponse.body().getItems().get(i).getContentDetails().getDuration()
+//                                    ));
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        videos.setValue(ytv);
+//                    }
+//                })
+//    ;
+////    );
+//    }
+
+
+    public void playlist(String playlistId){
+        List<PlaylistItems.Items> temp = new ArrayList<>();
         List<YouTubeVideo> ytv = new ArrayList<>();
-//        disposable.add(
-                networkDataModel.searchVideoRx(query)
-                .flatMap(new Function<Response<SearchResponse>, Observable<String>>() {
+        networkDataModel.playlistItems(playlistId)
+                .flatMap(new Function<Response<PlaylistItems>, Observable<String>>() {
                     @Override
-                    public Observable<String> apply(Response<SearchResponse> searchResponse) throws Exception {
-                        List<SearchResponse.Items> items = searchResponse.body().getItems();
+                    public Observable<String> apply(Response<PlaylistItems> playlistItemsResponse) throws Exception {
+                        List<PlaylistItems.Items> items = playlistItemsResponse.body().getItems();
                         temp.addAll(items);
                         String multi_id = "";
-                        for (SearchResponse.Items i : items){
-                            multi_id = multi_id + i.getId().getVideoId() + ",";
+                        for (PlaylistItems.Items i : items){
+                            multi_id = multi_id + i.getSnippet().getResourceId().getVideoId() + ",";
                         }
                         return Observable.just(multi_id);
                     }
@@ -97,28 +169,27 @@ public class YoutubeViewModel extends ViewModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableObserver<Response<VideoResponse>>() {
+                .filter(response -> response.code() == 200)
+                .subscribe(new DisposableObserver<Response<VideoResponse>>() {
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onNext(Response<VideoResponse> videoResponse) {
-                        if(videoResponse.code() == 200) {
-                            Log.d("YoutubeViewModel", "videoResponse : "
-                                    + videoResponse.body().getItems().get(0).getSnippet().getTitle());
-                            for (int i = 0;i < temp.size();i++){
-                                if(temp.get(i).getId().getVideoId() != null &&
-                                        temp.get(i).getId().getVideoId().equals(videoResponse.body().getItems().get(i).getId())) {
-                                    Log.d("test", "onActivityCreated:"
-                                            + videoResponse.body().getItems().get(i).getSnippet().getTitle());
-                                    ytv.add(
-                                    new YouTubeVideo(
-                                            temp.get(i).getId().getVideoId(),
-                                            temp.get(i).getSnippet().getTitle(),
-                                            temp.get(i).getSnippet().getChannelTitle(),
-                                            videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
-                                            videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
-                                            videoResponse.body().getItems().get(i).getContentDetails().getDuration()
-                                    ));
-                                }
+                        Log.d("YoutubeViewModel", "videoResponse : "
+                                + videoResponse.body().getItems().get(0).getSnippet().getTitle());
+                        for (int i = 0;i < temp.size();i++){
+                            if(temp.get(i).getSnippet().getResourceId().getVideoId() != null &&
+                                    temp.get(i).getSnippet().getResourceId().getVideoId().equals(videoResponse.body().getItems().get(i).getId())) {
+                                Log.d("test", "onActivityCreated:"
+                                        + videoResponse.body().getItems().get(i).getSnippet().getTitle());
+                                ytv.add(
+                                        new YouTubeVideo(
+                                                temp.get(i).getSnippet().getResourceId().getVideoId(),
+                                                temp.get(i).getSnippet().getTitle(),
+                                                videoResponse.body().getItems().get(i).getSnippet().getChannelTitle(),
+                                                videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
+                                                videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
+                                                videoResponse.body().getItems().get(i).getContentDetails().getDuration()
+                                        ));
                             }
                         }
                     }
@@ -133,8 +204,7 @@ public class YoutubeViewModel extends ViewModel {
                         videos.setValue(ytv);
                     }
                 })
-    ;
-//    );
+        ;
     }
 
     @Override

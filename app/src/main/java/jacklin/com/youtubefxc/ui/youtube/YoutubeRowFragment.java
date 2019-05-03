@@ -27,9 +27,13 @@ import java.util.List;
 
 import jacklin.com.youtubefxc.R;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
-import jacklin.com.youtubefxc.ui.CustomCardView;
 import jacklin.com.youtubefxc.ui.YouTubeCardPresenter;
 import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
+
+/**
+ * ViewModel {@link YoutubeViewModel}
+ *
+ */
 
 public class YoutubeRowFragment extends RowsSupportFragment {
 
@@ -39,6 +43,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     private ArrayObjectAdapter mCardsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
     private ListRowPresenter mListRowPresenter;
+    private YouTubeCardPresenter mYouTubeCardPresenter;
 
     public static YoutubeRowFragment newInstance() {
         return new YoutubeRowFragment();
@@ -55,7 +60,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_youtube_row, container, false);
 
-        YouTubeCardPresenter mYouTubeCardPresenter = new YouTubeCardPresenter();
+        mYouTubeCardPresenter = new YouTubeCardPresenter();
         mCardsAdapter = new ArrayObjectAdapter(mYouTubeCardPresenter);
 
         if(mVideoList!=null) {
@@ -66,8 +71,8 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 
         mListRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_XSMALL);
 
-//        mListRowPresenter.setShadowEnabled(false);
-        mListRowPresenter.setSelectEffectEnabled(false);
+        mListRowPresenter.setShadowEnabled(true);
+        mListRowPresenter.setSelectEffectEnabled(true);
         mRowsAdapter = new ArrayObjectAdapter(mListRowPresenter);
         for (int i = 0; i < 2; i++) {
             HeaderItem headerItem = new HeaderItem("test");
@@ -93,8 +98,12 @@ public class YoutubeRowFragment extends RowsSupportFragment {
             }
             mCardsAdapter.notifyArrayItemRangeChanged(0, 1);
             Log.d("Fragment ViewModel", "notify");
+//            mRowsAdapter.clear();
+//            ListRow row = new ListRow(new HeaderItem("Movie"), mCardsAdapter);
+//            mRowsAdapter.add(row);
+//            setAdapter(mRowsAdapter);
         });
-//        mViewModel.searchRx("Surfing");
+        mViewModel.playlist("PLzjFbaFzsmMS-b4t5Eh3LJcf3HYlmVWYe");
         mVideoList = mViewModel.getVideoList().getValue();
 
         setOnItemViewSelectedListener(new YouTubeCardSelectedListener());
