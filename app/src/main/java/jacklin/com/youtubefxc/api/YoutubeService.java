@@ -14,7 +14,7 @@ public interface YoutubeService {
     Call<SearchResponse> searchVideo(@Query("q") String query);
 
     //RxJava2
-    @GET("search?part=snippet&maxResults=15&type=video&key=" + key)
+    @GET("search?part=snippet&maxResults=10&type=video&key=" + key)
     Observable<Response<SearchResponse>> searchVideoRx(@Query("q") String query);
 
     @GET("search?part=snippet" +
@@ -25,6 +25,6 @@ public interface YoutubeService {
     @GET("videos?part=snippet%2CcontentDetails%2Cstatistics&key=" + key)
     Observable<Response<VideoResponse>>  videoDetail(@Query("id") String id);
 
-    @GET("playlistItems?part=snippet%2Cid&maxResults=15&key=" + key)
+    @GET("playlistItems?part=snippet%2Cid&maxResults=10&key=" + key)
     Observable<Response<PlaylistItems>>  playlistItems(@Query("playlistId") String playlistId);
 }

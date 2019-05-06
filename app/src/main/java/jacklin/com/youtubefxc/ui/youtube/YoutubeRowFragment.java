@@ -2,9 +2,11 @@ package jacklin.com.youtubefxc.ui.youtube;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v17.leanback.app.RowsSupportFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.FocusHighlight;
@@ -23,7 +25,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jacklin.com.youtubefxc.R;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
@@ -35,11 +39,13 @@ import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
  *
  */
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class YoutubeRowFragment extends RowsSupportFragment {
 
     private final static String TAG = YoutubeRowFragment.class.getSimpleName();
     private YoutubeViewModel mViewModel;
     private List<YouTubeVideo> mVideoList = new ArrayList<>();
+    private Map<String, List<YouTubeVideo>> mChannelList;
     private ArrayObjectAdapter mCardsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
     private ListRowPresenter mListRowPresenter;
@@ -62,25 +68,12 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 
         mYouTubeCardPresenter = new YouTubeCardPresenter();
         mCardsAdapter = new ArrayObjectAdapter(mYouTubeCardPresenter);
-
-        if(mVideoList!=null) {
-            for (YouTubeVideo v : mVideoList) {
-                mCardsAdapter.add(v);
-            }
-        }
-
         mListRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_XSMALL);
-
         mListRowPresenter.setShadowEnabled(true);
-        mListRowPresenter.setSelectEffectEnabled(true);
+        mListRowPresenter.setSelectEffectEnabled(false);
         mRowsAdapter = new ArrayObjectAdapter(mListRowPresenter);
-        for (int i = 0; i < 2; i++) {
-            HeaderItem headerItem = new HeaderItem("test");
 
-            ListRow row = new ListRow(new HeaderItem("Row " + i), mCardsAdapter);
-            mRowsAdapter.add(row);
-        }
-        setAdapter(mRowsAdapter);
+        setRows();
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -91,22 +84,69 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         mViewModel = ViewModelProviders.of(this).get(YoutubeViewModel.class);
 
         mViewModel.getVideoList().observe(getActivity(), (videos) ->{
-            mVideoList = videos;
-            mCardsAdapter.clear();
-            for (YouTubeVideo v : mVideoList){
-                mCardsAdapter.add(v);
-            }
-            mCardsAdapter.notifyArrayItemRangeChanged(0, 1);
-            Log.d("Fragment ViewModel", "notify");
+//            mVideoList = videos;
+//            mCardsAdapter.clear();
+//            for (YouTubeVideo v : mVideoList){
+//                mCardsAdapter.add(v);
+//            }
+//            mCardsAdapter.notifyArrayItemRangeChanged(0, 1);
+//            Log.d("Fragment ViewModel", "notify");
 //            mRowsAdapter.clear();
 //            ListRow row = new ListRow(new HeaderItem("Movie"), mCardsAdapter);
 //            mRowsAdapter.add(row);
 //            setAdapter(mRowsAdapter);
         });
-        mViewModel.playlist("PLzjFbaFzsmMS-b4t5Eh3LJcf3HYlmVWYe");
-        mVideoList = mViewModel.getVideoList().getValue();
+
+        mViewModel.getChannelList().observe(getActivity(), (channels)->{
+            Log.i("Fragment ViewModel", "observe");
+            setRows();
+        });
+
+        String [] playlist_url = {"PLzjFbaFzsmMS-b4t5Eh3LJcf3HYlmVWYe"};
+        mViewModel.playlist(playlist_url[0]);
+//        mVideoList = mViewModel.getVideoList().getValue();
+        mChannelList = mViewModel.getChannelList().getValue();
+
 
         setOnItemViewSelectedListener(new YouTubeCardSelectedListener());
+    }
+
+    private void setRows(){
+        if(mViewModel != null)
+            mChannelList = mViewModel.getChannelList().getValue();
+
+        if(mChannelList == null){
+            Log.d("Fragment Set Rows", "Channel NULL");
+            mCardsAdapter.clear();
+            mRowsAdapter.clear();
+            for (int i = 0; i < 3; i++) {
+                mCardsAdapter.add(new YouTubeVideo(null, null,
+                        null, 0, null, null));
+            }
+            for (int i = 0; i < 2; i++) {
+                ListRow row = new ListRow(new HeaderItem("Row " + i), mCardsAdapter);
+                mRowsAdapter.add(row);
+            }
+            setAdapter(mRowsAdapter);
+        }
+        else {
+            Log.i("Fragment Set Rows", "Get Channels");
+            mCardsAdapter.clear();
+            mRowsAdapter.clear();
+            mChannelList.forEach((channel,videos)->{
+                for (YouTubeVideo video : videos) {
+                    mCardsAdapter.add(video);
+                }
+
+                mCardsAdapter.notifyArrayItemRangeChanged(0, 1);
+                HeaderItem headerItem = new HeaderItem(channel);
+
+                ListRow row = new ListRow(headerItem, mCardsAdapter);
+                mRowsAdapter.add(row);
+//            mRowsAdapter.notifyArrayItemRangeChanged(0,1);
+            });
+//            setAdapter(mRowsAdapter);
+        }
     }
 
     private final class YouTubeCardSelectedListener implements OnItemViewSelectedListener{

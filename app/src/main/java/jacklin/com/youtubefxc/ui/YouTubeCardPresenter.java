@@ -25,7 +25,7 @@ public class YouTubeCardPresenter extends Presenter {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup) {
-        Log.d("YouTubeCardPresenter" , "onCreateViewHolder");
+        Log.v("YouTubeCardPresenter" , "onCreateViewHolder");
         mContext = viewGroup.getContext();
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -56,15 +56,16 @@ public class YouTubeCardPresenter extends Presenter {
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Object o) {
-        Log.d("YouTubeCardPresenter" , "onBindViewHolder");
+        Log.v("YouTubeCardPresenter" , "onBindViewHolder");
         CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
         YouTubeVideo youTubeVideo = (YouTubeVideo) o;
 
         TextView timeStamp = cardViewHolder.mTimeStamp;
         if(youTubeVideo.getDuration() == null){
-//            timeStamp.setVisibility(View.GONE);
+            timeStamp.setBackgroundColor(Color.TRANSPARENT);
         }
         else{
+            timeStamp.setBackgroundColor(Color.parseColor("#cc121212"));
             timeStamp.setText(Utils.DurationConverter(youTubeVideo.getDuration()));
         }
 
@@ -76,11 +77,11 @@ public class YouTubeCardPresenter extends Presenter {
         if(youTubeVideo.getId() != null){
             Log.d("YouTubeCardPresenter" , "!cardViewHolder.isLoading");
             cardViewHolder.setCardInfo();
-        }
         imgCard.setTitleText(Html.fromHtml(youTubeVideo.getTitle()));
         imgCard.setContentText(youTubeVideo.getChannel() + "\n"
                 + Utils.CountConverter(youTubeVideo.getNumber_views()) +" views ‧ "
                 + Utils.TimeConverter(youTubeVideo.getTime()) + "ago");
+        }
 
         Glide.with(mContext)
                 .asBitmap()

@@ -8,7 +8,9 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -36,14 +38,35 @@ public class YoutubeViewModel extends ViewModel {
 
     private NetworkDataModel networkDataModel = new NetworkDataModel();
 
+    private MutableLiveData<Map<String, List<YouTubeVideo>>> channelList;
+
+    public LiveData<Map<String, List<YouTubeVideo>>> getChannelList(){
+        if(channelList == null) {
+            channelList = new MutableLiveData<>();
+
+            List<YouTubeVideo> list = new ArrayList<>();
+            for (int i = 0;i <= 3;i++)
+                list.add(new YouTubeVideo(null,
+                        null,
+                        null, 0, null,null));
+
+            Map<String, List<YouTubeVideo>> map = new HashMap<>();
+            for (int i = 0;i <= 3;i++)
+                map.put(String.valueOf(i), list);
+
+//            channelList.setValue(map);
+        }
+        return channelList;
+    }
+
     public LiveData<List<YouTubeVideo>> getVideoList(){
         if(videos == null){
             videos = new MutableLiveData<>();
             List<YouTubeVideo> list = new ArrayList<>();
             for (int i = 0;i <= 3;i++)
                 list.add(new YouTubeVideo(null,
-                        "JJJJJJJJJJJJJJJ",
-                        "fxc", 0, "now",null));
+                        null,
+                        null, 0, null,null));
             videos.setValue(list);
         }
         return videos;
@@ -148,7 +171,9 @@ public class YoutubeViewModel extends ViewModel {
     public void playlist(String playlistId){
         List<PlaylistItems.Items> temp = new ArrayList<>();
         List<YouTubeVideo> ytv = new ArrayList<>();
+
         networkDataModel.playlistItems(playlistId)
+//                .mergeWith(networkDataModel.playlistItems(playlistId[1]))
                 .flatMap(new Function<Response<PlaylistItems>, Observable<String>>() {
                     @Override
                     public Observable<String> apply(Response<PlaylistItems> playlistItemsResponse) throws Exception {
@@ -174,13 +199,10 @@ public class YoutubeViewModel extends ViewModel {
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onNext(Response<VideoResponse> videoResponse) {
-                        Log.d("YoutubeViewModel", "videoResponse : "
-                                + videoResponse.body().getItems().get(0).getSnippet().getTitle());
                         for (int i = 0;i < temp.size();i++){
                             if(temp.get(i).getSnippet().getResourceId().getVideoId() != null &&
-                                    temp.get(i).getSnippet().getResourceId().getVideoId().equals(videoResponse.body().getItems().get(i).getId())) {
-                                Log.d("test", "onActivityCreated:"
-                                        + videoResponse.body().getItems().get(i).getSnippet().getTitle());
+                                    temp.get(i).getSnippet().getResourceId().getVideoId()
+                                            .equals(videoResponse.body().getItems().get(i).getId())) {
                                 ytv.add(
                                         new YouTubeVideo(
                                                 temp.get(i).getSnippet().getResourceId().getVideoId(),
@@ -202,9 +224,16 @@ public class YoutubeViewModel extends ViewModel {
                     @Override
                     public void onComplete() {
                         videos.setValue(ytv);
+
+                        String channelTitle = temp.get(0).getSnippet().getChannelTitle();
+
+                        Map<String, List<YouTubeVideo>> channel =
+                                getChannelList().getValue() == null ? new HashMap<>() : getChannelList().getValue();
+                        Log.d("YoutubeViewModel", "onComplete :" + channelTitle);
+                        channel.put(channelTitle, ytv);
+                        channelList.setValue(channel);
                     }
-                })
-        ;
+                });
     }
 
     @Override
