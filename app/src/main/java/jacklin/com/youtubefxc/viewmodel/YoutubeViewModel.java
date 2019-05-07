@@ -168,15 +168,20 @@ public class YoutubeViewModel extends ViewModel {
 //    }
 
 
-    public void playlist(String playlistId){
+    public void playlist(String[] playlistId){
         List<PlaylistItems.Items> temp = new ArrayList<>();
         List<YouTubeVideo> ytv = new ArrayList<>();
+        final String[] channelTitle = new String[1];
+        Map<String, List<YouTubeVideo>> channel =
+                getChannelList().getValue() == null ? new HashMap<>() : getChannelList().getValue();
 
-        networkDataModel.playlistItems(playlistId)
-//                .mergeWith(networkDataModel.playlistItems(playlistId[1]))
+        networkDataModel.playlistItems(playlistId[0])
+                .mergeWith(networkDataModel.playlistItems(playlistId[1]))
                 .flatMap(new Function<Response<PlaylistItems>, Observable<String>>() {
                     @Override
                     public Observable<String> apply(Response<PlaylistItems> playlistItemsResponse) throws Exception {
+                        channelTitle[0] = playlistItemsResponse.body().getItems().get(0).getSnippet().getChannelTitle();
+
                         List<PlaylistItems.Items> items = playlistItemsResponse.body().getItems();
                         temp.addAll(items);
                         String multi_id = "";
@@ -199,21 +204,20 @@ public class YoutubeViewModel extends ViewModel {
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onNext(Response<VideoResponse> videoResponse) {
-                        for (int i = 0;i < temp.size();i++){
-                            if(temp.get(i).getSnippet().getResourceId().getVideoId() != null &&
-                                    temp.get(i).getSnippet().getResourceId().getVideoId()
-                                            .equals(videoResponse.body().getItems().get(i).getId())) {
-                                ytv.add(
-                                        new YouTubeVideo(
-                                                temp.get(i).getSnippet().getResourceId().getVideoId(),
-                                                temp.get(i).getSnippet().getTitle(),
-                                                videoResponse.body().getItems().get(i).getSnippet().getChannelTitle(),
-                                                videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
-                                                videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
-                                                videoResponse.body().getItems().get(i).getContentDetails().getDuration()
-                                        ));
-                            }
+                        List<YouTubeVideo> yt = new ArrayList<>();
+                        for (int i = 0;i < videoResponse.body().getItems().size();i++){
+                            yt.add(
+                                    new YouTubeVideo(
+                                            videoResponse.body().getItems().get(i).getId(),
+                                            videoResponse.body().getItems().get(i).getSnippet().getTitle(),
+                                            videoResponse.body().getItems().get(i).getSnippet().getChannelTitle(),
+                                            videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
+                                            videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
+                                            videoResponse.body().getItems().get(i).getContentDetails().getDuration()
+                                    ));
                         }
+                        Log.d("YoutubeViewModel", "onNext :" + channelTitle[0] + yt.size());
+                        channel.put(channelTitle[0], yt);
                     }
 
                     @Override
@@ -223,14 +227,12 @@ public class YoutubeViewModel extends ViewModel {
 
                     @Override
                     public void onComplete() {
-                        videos.setValue(ytv);
+//                        videos.setValue(ytv);
 
-                        String channelTitle = temp.get(0).getSnippet().getChannelTitle();
+                        Log.d("YoutubeViewModel", "onComplete : Size " + channel.size());
+                        Log.d("YoutubeViewModel", "onComplete : " + channel.get("Movies - Topic").get(0).getTitle());
+                        Log.d("YoutubeViewModel", "onComplete : " + channel.get("Pop Music - Topic").get(0).getTitle());
 
-                        Map<String, List<YouTubeVideo>> channel =
-                                getChannelList().getValue() == null ? new HashMap<>() : getChannelList().getValue();
-                        Log.d("YoutubeViewModel", "onComplete :" + channelTitle);
-                        channel.put(channelTitle, ytv);
                         channelList.setValue(channel);
                     }
                 });

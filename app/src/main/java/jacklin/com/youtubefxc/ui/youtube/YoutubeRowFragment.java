@@ -102,8 +102,9 @@ public class YoutubeRowFragment extends RowsSupportFragment {
             setRows();
         });
 
-        String [] playlist_url = {"PLzjFbaFzsmMS-b4t5Eh3LJcf3HYlmVWYe"};
-        mViewModel.playlist(playlist_url[0]);
+        String [] playlist_url = {"PLzjFbaFzsmMS-b4t5Eh3LJcf3HYlmVWYe",
+                "PLDcnymzs18LWLKtkNrKYzPpHLbnXRu4nN"};
+        mViewModel.playlist(playlist_url);
 //        mVideoList = mViewModel.getVideoList().getValue();
         mChannelList = mViewModel.getChannelList().getValue();
 
@@ -117,8 +118,6 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 
         if(mChannelList == null){
             Log.d("Fragment Set Rows", "Channel NULL");
-            mCardsAdapter.clear();
-            mRowsAdapter.clear();
             for (int i = 0; i < 3; i++) {
                 mCardsAdapter.add(new YouTubeVideo(null, null,
                         null, 0, null, null));
@@ -131,21 +130,18 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         }
         else {
             Log.i("Fragment Set Rows", "Get Channels");
-            mCardsAdapter.clear();
             mRowsAdapter.clear();
             mChannelList.forEach((channel,videos)->{
+                mCardsAdapter = new ArrayObjectAdapter(mYouTubeCardPresenter);
                 for (YouTubeVideo video : videos) {
                     mCardsAdapter.add(video);
                 }
-
-                mCardsAdapter.notifyArrayItemRangeChanged(0, 1);
+                Log.d("Fragment Set Rows", "Get Channel : " + channel + videos.get(0).getTitle());
                 HeaderItem headerItem = new HeaderItem(channel);
 
                 ListRow row = new ListRow(headerItem, mCardsAdapter);
                 mRowsAdapter.add(row);
-//            mRowsAdapter.notifyArrayItemRangeChanged(0,1);
             });
-//            setAdapter(mRowsAdapter);
         }
     }
 

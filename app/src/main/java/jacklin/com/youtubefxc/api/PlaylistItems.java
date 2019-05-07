@@ -23,6 +23,8 @@ public class PlaylistItems {
         private String kind;
         @SerializedName("id")
         private String id;
+        @SerializedName("pageInfo")
+        private PageInfo pageInfo;
         @SerializedName("snippet")
         private Snippet snippet;
 
@@ -30,8 +32,23 @@ public class PlaylistItems {
             return kind;
         }
 
+        public PageInfo getPageInfo() {
+            return pageInfo;
+        }
+
         public Snippet getSnippet() {
             return snippet;
+        }
+
+        public class PageInfo{
+            @SerializedName("totalResults")
+            private int totalResults;
+            @SerializedName("resultsPerpage")
+            private int resultsPerpage;
+
+            public int getResultsPerpage() {
+                return resultsPerpage;
+            }
         }
 
         public class Snippet{
