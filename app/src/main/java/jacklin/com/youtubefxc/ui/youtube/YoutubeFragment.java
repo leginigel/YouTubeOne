@@ -1,8 +1,12 @@
 package jacklin.com.youtubefxc.ui.youtube;
 
 
+import android.animation.ObjectAnimator;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -16,6 +20,7 @@ import jacklin.com.youtubefxc.R;
 /**
  * A simple {@link Fragment} subclass.
  */
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class YoutubeFragment extends Fragment {
 
 
@@ -23,7 +28,7 @@ public class YoutubeFragment extends Fragment {
         return new YoutubeFragment();
     }
 
-
+    FragmentManager fm;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -31,7 +36,7 @@ public class YoutubeFragment extends Fragment {
         YoutubeRowFragment youtubeRowFragment = YoutubeRowFragment.newInstance();
         View view = inflater.inflate(R.layout.youtube_fragment, container, false);
         if(savedInstanceState == null) {
-            FragmentManager fm = getFragmentManager();
+            fm = getFragmentManager();
             FragmentTransaction fmts = fm.beginTransaction();
             fmts.replace(R.id.container, youtubeRowFragment).commit();
         }
@@ -41,19 +46,20 @@ public class YoutubeFragment extends Fragment {
         music = view.findViewById(R.id.music_btn);
         entertain = view.findViewById(R.id.entertainment_btn);
         gaming = view.findViewById(R.id.gaming_btn);
-        setButtonFocusListener(recommend);
-        setButtonFocusListener(latest);
-        setButtonFocusListener(music);
-        setButtonFocusListener(entertain);
-        setButtonFocusListener(gaming);
+        setButtonFocusListener(recommend,youtubeRowFragment);
+        setButtonFocusListener(latest,youtubeRowFragment);
+        setButtonFocusListener(music,youtubeRowFragment);
+        setButtonFocusListener(entertain,youtubeRowFragment);
+        setButtonFocusListener(gaming,youtubeRowFragment);
 
         return view;
     }
 
-    void setButtonFocusListener(Button button){
+    void setButtonFocusListener(Button button, YoutubeRowFragment yrf){
         button.setOnFocusChangeListener((v, hasFocus) -> {
             if(hasFocus) {
                 button.setTextColor(Color.BLACK);
+//                yrf.setRows(null);
             }
             else{
                 button.setTextColor(getActivity().getResources().getColor(R.color.btn_text));

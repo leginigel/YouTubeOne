@@ -2,6 +2,7 @@ package jacklin.com.youtubefxc.ui.youtube;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,10 +23,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,11 +46,29 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     private final static String TAG = YoutubeRowFragment.class.getSimpleName();
     private YoutubeViewModel mViewModel;
     private List<YouTubeVideo> mVideoList = new ArrayList<>();
-    private Map<String, List<YouTubeVideo>> mChannelList;
+    private Map<String, List<YouTubeVideo>> mRecommendedChannel;
+    private Map<String, List<YouTubeVideo>> mLatestChannel;
+
     private ArrayObjectAdapter mCardsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
     private ListRowPresenter mListRowPresenter;
     private YouTubeCardPresenter mYouTubeCardPresenter;
+    String [] recommend_playlist_url = {
+            "PLzjFbaFzsmMS-b4t5Eh3LJcf3HYlmVWYe",
+            "PLDcnymzs18LWLKtkNrKYzPpHLbnXRu4nN",
+//                "PLS3UB7jaIERzy5Ua5i0nlEYY6_xh2PhUf",
+//                "PL8fVUTBmJhHJmpP7sLb9JfLtdwCmYX9xC",
+//                "PLAdMV6KkPvD4igiNzQm5Zk3f3vcqN8xFW",
+//                "PLiBi9LVIrC-eGpUAUkxkjpw4QIayQJMpD",
+//                "PLCmd_pMCXoQLqg3gKa0_c0URlbIEetgXM",
+//                "PLkLNgKNlFzZ35-B8UdoLWnMCAf3GsPbr9",
+//                "PL57quI9usf_vDPXuhqIjyrPIjkw3C1oPe",
+    };
+    private TabCategory mTab = TabCategory.Recommended;
+
+    public enum TabCategory {
+        Recommended, Latest, Music, Entertainment, Gaming
+    }
 
     public static YoutubeRowFragment newInstance() {
         return new YoutubeRowFragment();
@@ -73,7 +92,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         mListRowPresenter.setSelectEffectEnabled(false);
         mRowsAdapter = new ArrayObjectAdapter(mListRowPresenter);
 
-        setRows();
+        setRows(null);
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -83,7 +102,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(YoutubeViewModel.class);
 
-        mViewModel.getVideoList().observe(getActivity(), (videos) ->{
+//        mViewModel.getVideoList().observe(getActivity(), (videos) ->{
 //            mVideoList = videos;
 //            mCardsAdapter.clear();
 //            for (YouTubeVideo v : mVideoList){
@@ -95,28 +114,25 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 //            ListRow row = new ListRow(new HeaderItem("Movie"), mCardsAdapter);
 //            mRowsAdapter.add(row);
 //            setAdapter(mRowsAdapter);
-        });
+//        });
+//        mVideoList = mViewModel.getVideoList().getValue();
 
         mViewModel.getChannelList().observe(getActivity(), (channels)->{
-            Log.i("Fragment ViewModel", "observe");
-            setRows();
+            Log.i("Fragment ViewModel", "Recommended Observe ");
+            if(this.mTab == TabCategory.Recommended) {
+                setRows(channels);
+            }
         });
 
-        String [] playlist_url = {"PLzjFbaFzsmMS-b4t5Eh3LJcf3HYlmVWYe",
-                "PLDcnymzs18LWLKtkNrKYzPpHLbnXRu4nN"};
-        mViewModel.playlist(playlist_url);
-//        mVideoList = mViewModel.getVideoList().getValue();
-        mChannelList = mViewModel.getChannelList().getValue();
-
+//        mViewModel.playlist(recommend_playlist_url);
+        mRecommendedChannel = mViewModel.getChannelList().getValue();
 
         setOnItemViewSelectedListener(new YouTubeCardSelectedListener());
     }
 
-    private void setRows(){
-        if(mViewModel != null)
-            mChannelList = mViewModel.getChannelList().getValue();
+    private void setRows(Map<String, List<YouTubeVideo>> channelList){
 
-        if(mChannelList == null){
+        if(channelList == null){
             Log.d("Fragment Set Rows", "Channel NULL");
             for (int i = 0; i < 3; i++) {
                 mCardsAdapter.add(new YouTubeVideo(null, null,
@@ -131,7 +147,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         else {
             Log.i("Fragment Set Rows", "Get Channels");
             mRowsAdapter.clear();
-            mChannelList.forEach((channel,videos)->{
+            channelList.forEach((channel,videos)->{
                 mCardsAdapter = new ArrayObjectAdapter(mYouTubeCardPresenter);
                 for (YouTubeVideo video : videos) {
                     mCardsAdapter.add(video);
@@ -142,6 +158,21 @@ public class YoutubeRowFragment extends RowsSupportFragment {
                 ListRow row = new ListRow(headerItem, mCardsAdapter);
                 mRowsAdapter.add(row);
             });
+        }
+    }
+
+    public void setTabCategory(TabCategory category){
+        this.mTab = category;
+        switch (category){
+            case Recommended:
+                setRows(mRecommendedChannel);
+                break;
+            case Latest:
+                setRows(mLatestChannel);
+                break;
+            case Music:break;
+            case Entertainment:break;
+            case Gaming:break;
         }
     }
 
@@ -163,7 +194,10 @@ public class YoutubeRowFragment extends RowsSupportFragment {
                 }
 //                Log.d(TAG, "Selected");
 //                imgCard = (ImageCardView) viewHolder.view;
+//                ImageView mainImage = cardViewHolder.view.findViewById(R.id.main_image);
+//                mainImage.animate().scaleX(1.2f).scaleY(1.2f);
                 imgCard = (ImageCardView) cardViewHolder.getImageCardView();
+
                 imgCard.setInfoAreaBackgroundColor(Color.WHITE);
                 ((TextView) imgCard.findViewById(R.id.title_text))
                         .setTextColor(getResources().getColor(R.color.background));
