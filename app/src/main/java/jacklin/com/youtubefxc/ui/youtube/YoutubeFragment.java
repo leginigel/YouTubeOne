@@ -28,15 +28,15 @@ public class YoutubeFragment extends Fragment {
         return new YoutubeFragment();
     }
 
-    FragmentManager fm;
+    YoutubeRowFragment youtubeRowFragment;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        YoutubeRowFragment youtubeRowFragment = YoutubeRowFragment.newInstance();
+        youtubeRowFragment = YoutubeRowFragment.newInstance();
         View view = inflater.inflate(R.layout.youtube_fragment, container, false);
         if(savedInstanceState == null) {
-            fm = getFragmentManager();
+            FragmentManager fm = getFragmentManager();
             FragmentTransaction fmts = fm.beginTransaction();
             fmts.replace(R.id.container, youtubeRowFragment).commit();
         }
@@ -46,20 +46,21 @@ public class YoutubeFragment extends Fragment {
         music = view.findViewById(R.id.music_btn);
         entertain = view.findViewById(R.id.entertainment_btn);
         gaming = view.findViewById(R.id.gaming_btn);
-        setButtonFocusListener(recommend,youtubeRowFragment);
-        setButtonFocusListener(latest,youtubeRowFragment);
-        setButtonFocusListener(music,youtubeRowFragment);
-        setButtonFocusListener(entertain,youtubeRowFragment);
-        setButtonFocusListener(gaming,youtubeRowFragment);
+        setButtonFocusListener(recommend, YoutubeRowFragment.TabCategory.Recommended);
+        setButtonFocusListener(latest, YoutubeRowFragment.TabCategory.Recommended);
+        setButtonFocusListener(music, YoutubeRowFragment.TabCategory.Music);
+        setButtonFocusListener(entertain, YoutubeRowFragment.TabCategory.Recommended);
+        setButtonFocusListener(gaming, YoutubeRowFragment.TabCategory.Recommended);
 
         return view;
     }
 
-    void setButtonFocusListener(Button button, YoutubeRowFragment yrf){
+    void setButtonFocusListener(Button button, YoutubeRowFragment.TabCategory category){
         button.setOnFocusChangeListener((v, hasFocus) -> {
             if(hasFocus) {
                 button.setTextColor(Color.BLACK);
-//                yrf.setRows(null);
+                if(youtubeRowFragment.getTabCategory() != category)
+                    youtubeRowFragment.setTabCategory(category);
             }
             else{
                 button.setTextColor(getActivity().getResources().getColor(R.color.btn_text));
