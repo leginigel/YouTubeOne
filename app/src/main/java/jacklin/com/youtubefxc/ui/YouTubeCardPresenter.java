@@ -6,6 +6,7 @@ import android.support.v17.leanback.widget.BaseCardView;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -149,6 +150,7 @@ public class YouTubeCardPresenter extends Presenter {
             mTitle.setTextSize(20);
             mTitle.setTextColor(Color.WHITE);
             mTitle.setBackgroundColor(Color.TRANSPARENT);
+            mTitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
 
             mContent.setLines(2);
             mContent.setTextSize(12);

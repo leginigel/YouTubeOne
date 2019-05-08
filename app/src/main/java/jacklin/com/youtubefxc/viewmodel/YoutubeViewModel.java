@@ -31,18 +31,44 @@ import retrofit2.Response;
  */
 
 public class YoutubeViewModel extends ViewModel {
+    public static final String [] recommend_playlistId_url = {
+            "PLzjFbaFzsmMS-b4t5Eh3LJcf3HYlmVWYe",
+            "PLDcnymzs18LWLKtkNrKYzPpHLbnXRu4nN",
+//                "PLS3UB7jaIERzy5Ua5i0nlEYY6_xh2PhUf",
+//                "PL8fVUTBmJhHJmpP7sLb9JfLtdwCmYX9xC",
+//                "PLAdMV6KkPvD4igiNzQm5Zk3f3vcqN8xFW",
+//                "PLiBi9LVIrC-eGpUAUkxkjpw4QIayQJMpD",
+//                "PLCmd_pMCXoQLqg3gKa0_c0URlbIEetgXM",
+//                "PLkLNgKNlFzZ35-B8UdoLWnMCAf3GsPbr9",
+//                "PL57quI9usf_vDPXuhqIjyrPIjkw3C1oPe",
+    };
+
+    private String music_url = "UC-9-kyTW8ZkZNDHQJ6FgpwQ";
+
+    private final static String TAG = YoutubeViewModel.class.getSimpleName();
 
     private CompositeDisposable disposable;
 
-    private MutableLiveData<List<YouTubeVideo>> videos;
-
     private NetworkDataModel networkDataModel = new NetworkDataModel();
 
-    private MutableLiveData<Map<String, List<YouTubeVideo>>> channelList;
+    private MutableLiveData<Map<String, List<YouTubeVideo>>> recommendedChannelList;
 
-    public LiveData<Map<String, List<YouTubeVideo>>> getChannelList(){
-        if(channelList == null) {
-            channelList = new MutableLiveData<>();
+    private MutableLiveData<Map<String, List<YouTubeVideo>>> musicChannelList;
+
+    public LiveData<Map<String, List<YouTubeVideo>>> getMusicChannelList(){
+        if(musicChannelList == null) {
+            Log.v(TAG, "getMusicChannelList NULL");
+            musicChannelList = new MutableLiveData<>();
+            Map<String, List<YouTubeVideo>> channelList = searchChannel(music_url);
+            musicChannelList.postValue(channelList);
+        }
+        return musicChannelList;
+    }
+
+    public LiveData<Map<String, List<YouTubeVideo>>> getRecommendedChannelList(){
+        if(recommendedChannelList == null) {
+            Log.v(TAG, "getRecommendedChannelList NULL");
+            recommendedChannelList = new MutableLiveData<>();
 
             List<YouTubeVideo> list = new ArrayList<>();
             for (int i = 0;i <= 3;i++)
@@ -54,127 +80,106 @@ public class YoutubeViewModel extends ViewModel {
             for (int i = 0;i <= 3;i++)
                 map.put(String.valueOf(i), list);
 
-//            channelList.setValue(map);
+            playlist(recommend_playlistId_url);
         }
-        return channelList;
+        return recommendedChannelList;
     }
 
-    public LiveData<List<YouTubeVideo>> getVideoList(){
-        if(videos == null){
-            videos = new MutableLiveData<>();
-            List<YouTubeVideo> list = new ArrayList<>();
-            for (int i = 0;i <= 3;i++)
-                list.add(new YouTubeVideo(null,
-                        null,
-                        null, 0, null,null));
-            videos.setValue(list);
-        }
-        return videos;
+    public Map<String, List<YouTubeVideo>> searchChannel(String channelId){
+        List<SearchResponse.Items> temp = new ArrayList<>();
+        List<YouTubeVideo> ytv = new ArrayList<>();
+        networkDataModel.searchChannelPlaylist(channelId)
+                .flatMap(new Function<Response<SearchResponse>, Observable<String>>() {
+                    @Override
+                    public Observable<String> apply(Response<SearchResponse> searchResponse) throws Exception {
+                        List<SearchResponse.Items> items = searchResponse.body().getItems();
+                        temp.addAll(items);
+
+                        List<String> playlistId = new ArrayList<>();
+                        for (SearchResponse.Items id : items){
+                            playlistId.add(id.getId().getPlaylistId());
+                        }
+                        return Observable.fromIterable(playlistId);
+                    }
+                })
+                .flatMap(new Function<String, ObservableSource<Response<PlaylistItems>>>() {
+                    @Override
+                    public ObservableSource<Response<PlaylistItems>> apply(String s) throws Exception {
+                        return networkDataModel.playlistItems(s);
+                    }
+                })
+                .flatMap(new Function<Response<PlaylistItems>, ObservableSource<String>>() {
+                    @Override
+                    public ObservableSource<String> apply(Response<PlaylistItems> playlistItemsResponse) throws Exception {
+                        List<PlaylistItems.Items> items = playlistItemsResponse.body().getItems();
+                        String multi_id = "";
+                        for (PlaylistItems.Items i : items){
+                            multi_id = multi_id + i.getSnippet().getResourceId().getVideoId() + ",";
+                        }
+                        return Observable.just(multi_id);
+                    }
+                })
+                .flatMap(new Function<String, ObservableSource<Response<VideoResponse>>>() {
+                    @Override
+                    public ObservableSource<Response<VideoResponse>> apply(String s) throws Exception {
+                        return networkDataModel.videoDetail(s);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<Response<VideoResponse>>() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
+                    @Override
+                    public void onNext(Response<VideoResponse> videoResponse) {
+                        if(videoResponse.code() == 200) {
+                            Log.d("YoutubeViewModel", "videoResponse : "
+                                    + videoResponse.body().getItems().get(0).getSnippet().getTitle());
+                            for (int i = 0;i < temp.size();i++){
+                                if(temp.get(i).getId().getVideoId() != null &&
+                                        temp.get(i).getId().getVideoId().equals(videoResponse.body().getItems().get(i).getId())) {
+                                    Log.d("test", "onActivityCreated:"
+                                            + videoResponse.body().getItems().get(i).getSnippet().getTitle());
+                                    ytv.add(
+                                            new YouTubeVideo(
+                                                    temp.get(i).getId().getVideoId(),
+                                                    temp.get(i).getSnippet().getTitle(),
+                                                    temp.get(i).getSnippet().getChannelTitle(),
+                                                    videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
+                                                    videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
+                                                    videoResponse.body().getItems().get(i).getContentDetails().getDuration()
+                                            ));
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+        return null;
     }
 
-    public void search(String query) {
-
-        networkDataModel.searchVideo(query, new NetworkDataModel.onSearchDataReadyCallback() {
-            @Override
-            public void onSearchDataReady(List<SearchResponse.Items> data) {
-                Log.d("ViewModel", data.get(0).getId().getVideoId());
-                Log.d("ViewModel", data.get(0).getSnippet().getTitle());
-                Log.d("ViewModel", data.get(0).getSnippet().getPublishedAt());
-                Log.d("ViewModel", data.get(0).getSnippet().getDescription());
-
-                Log.d("ViewModel", data.get(0).getSnippet().getChannelTitle());
-                List<YouTubeVideo> ytv = new ArrayList<>();
-                for (SearchResponse.Items i : data) {
-                    ytv.add(
-                            new YouTubeVideo(
-                                    i.getId().getVideoId(),
-                                    i.getSnippet().getTitle(),
-                                    i.getSnippet().getChannelTitle(),
-                                    10,
-                                    i.getSnippet().getPublishedAt(),
-                                    "0"
-                            )
-                    );
-                }
-                videos.setValue(ytv);
-
-            }
-        });
-    }
-
-//    public void searchRx(String query){
-//        List<SearchResponse.Items> temp = new ArrayList<>();
-//        List<YouTubeVideo> ytv = new ArrayList<>();
-////        disposable.add(
-//                networkDataModel.searchVideoRx(query)
-//                .flatMap(new Function<Response<SearchResponse>, Observable<String>>() {
-//                    @Override
-//                    public Observable<String> apply(Response<SearchResponse> searchResponse) throws Exception {
-//                        List<SearchResponse.Items> items = searchResponse.body().getItems();
-//                        temp.addAll(items);
-//                        String multi_id = "";
-//                        for (SearchResponse.Items i : items){
-//                            multi_id = multi_id + i.getId().getVideoId() + ",";
-//                        }
-//                        return Observable.just(multi_id);
-//                    }
-//                })
-//                .flatMap(new Function<String, ObservableSource<Response<VideoResponse>>>() {
-//                    @Override
-//                    public ObservableSource<Response<VideoResponse>> apply(String s) throws Exception {
-//                        return networkDataModel.videoDetail(s);
-//                    }
-//                })
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribeWith(new DisposableObserver<Response<VideoResponse>>() {
-//                    @RequiresApi(api = Build.VERSION_CODES.N)
-//                    @Override
-//                    public void onNext(Response<VideoResponse> videoResponse) {
-//                        if(videoResponse.code() == 200) {
-//                            Log.d("YoutubeViewModel", "videoResponse : "
-//                                    + videoResponse.body().getItems().get(0).getSnippet().getTitle());
-//                            for (int i = 0;i < temp.size();i++){
-//                                if(temp.get(i).getId().getVideoId() != null &&
-//                                        temp.get(i).getId().getVideoId().equals(videoResponse.body().getItems().get(i).getId())) {
-//                                    Log.d("test", "onActivityCreated:"
-//                                            + videoResponse.body().getItems().get(i).getSnippet().getTitle());
-//                                    ytv.add(
-//                                    new YouTubeVideo(
-//                                            temp.get(i).getId().getVideoId(),
-//                                            temp.get(i).getSnippet().getTitle(),
-//                                            temp.get(i).getSnippet().getChannelTitle(),
-//                                            videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
-//                                            videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
-//                                            videoResponse.body().getItems().get(i).getContentDetails().getDuration()
-//                                    ));
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                        videos.setValue(ytv);
-//                    }
-//                })
-//    ;
-////    );
-//    }
-
-
+    /**
+     * PlaylistId as channel playlists ID
+     * @param playlistId
+     *
+     * Request with playlistId and Return Video Items
+     * And Transform Items to Video Information
+     * Subscribe These Information to Class Video
+     */
     public void playlist(String[] playlistId){
         List<PlaylistItems.Items> temp = new ArrayList<>();
-        List<YouTubeVideo> ytv = new ArrayList<>();
         final String[] channelTitle = new String[1];
         Map<String, List<YouTubeVideo>> channel =
-                getChannelList().getValue() == null ? new HashMap<>() : getChannelList().getValue();
-
+                getRecommendedChannelList().getValue() == null ? new HashMap<>() : getRecommendedChannelList().getValue();
+Observable.just(playlistId);
         networkDataModel.playlistItems(playlistId[0])
                 .mergeWith(networkDataModel.playlistItems(playlistId[1]))
                 .flatMap(new Function<Response<PlaylistItems>, Observable<String>>() {
@@ -227,13 +232,9 @@ public class YoutubeViewModel extends ViewModel {
 
                     @Override
                     public void onComplete() {
-//                        videos.setValue(ytv);
+                        Log.d(TAG, "onComplete : Size " + channel.size());
 
-                        Log.d("YoutubeViewModel", "onComplete : Size " + channel.size());
-                        Log.d("YoutubeViewModel", "onComplete : " + channel.get("Movies - Topic").get(0).getTitle());
-                        Log.d("YoutubeViewModel", "onComplete : " + channel.get("Pop Music - Topic").get(0).getTitle());
-
-                        channelList.setValue(channel);
+                        recommendedChannelList.setValue(channel);
                     }
                 });
     }

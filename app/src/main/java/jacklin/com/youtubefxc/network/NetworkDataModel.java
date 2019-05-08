@@ -48,4 +48,8 @@ public class NetworkDataModel {
     public Observable<Response<PlaylistItems>> playlistItems(String playlistId){
         return youtubeService.playlistItems(playlistId);
     }
+
+    public Observable<Response<SearchResponse>> searchChannelPlaylist(String channelId){
+        return youtubeService.searchChannelPlaylist(channelId);
+    }
 }

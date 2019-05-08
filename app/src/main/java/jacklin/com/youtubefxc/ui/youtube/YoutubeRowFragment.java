@@ -2,7 +2,6 @@ package jacklin.com.youtubefxc.ui.youtube;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,7 +22,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -53,17 +51,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     private ArrayObjectAdapter mRowsAdapter;
     private ListRowPresenter mListRowPresenter;
     private YouTubeCardPresenter mYouTubeCardPresenter;
-    String [] recommend_playlist_url = {
-            "PLzjFbaFzsmMS-b4t5Eh3LJcf3HYlmVWYe",
-            "PLDcnymzs18LWLKtkNrKYzPpHLbnXRu4nN",
-//                "PLS3UB7jaIERzy5Ua5i0nlEYY6_xh2PhUf",
-//                "PL8fVUTBmJhHJmpP7sLb9JfLtdwCmYX9xC",
-//                "PLAdMV6KkPvD4igiNzQm5Zk3f3vcqN8xFW",
-//                "PLiBi9LVIrC-eGpUAUkxkjpw4QIayQJMpD",
-//                "PLCmd_pMCXoQLqg3gKa0_c0URlbIEetgXM",
-//                "PLkLNgKNlFzZ35-B8UdoLWnMCAf3GsPbr9",
-//                "PL57quI9usf_vDPXuhqIjyrPIjkw3C1oPe",
-    };
+
     private TabCategory mTab = TabCategory.Recommended;
 
     public enum TabCategory {
@@ -92,6 +80,8 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         mListRowPresenter.setSelectEffectEnabled(false);
         mRowsAdapter = new ArrayObjectAdapter(mListRowPresenter);
 
+        mTab = TabCategory.Recommended;
+
         setRows(null);
 
         return super.onCreateView(inflater, container, savedInstanceState);
@@ -102,30 +92,15 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(YoutubeViewModel.class);
 
-//        mViewModel.getVideoList().observe(getActivity(), (videos) ->{
-//            mVideoList = videos;
-//            mCardsAdapter.clear();
-//            for (YouTubeVideo v : mVideoList){
-//                mCardsAdapter.add(v);
-//            }
-//            mCardsAdapter.notifyArrayItemRangeChanged(0, 1);
-//            Log.d("Fragment ViewModel", "notify");
-//            mRowsAdapter.clear();
-//            ListRow row = new ListRow(new HeaderItem("Movie"), mCardsAdapter);
-//            mRowsAdapter.add(row);
-//            setAdapter(mRowsAdapter);
-//        });
-//        mVideoList = mViewModel.getVideoList().getValue();
-
-        mViewModel.getChannelList().observe(getActivity(), (channels)->{
-            Log.i("Fragment ViewModel", "Recommended Observe ");
+        mViewModel.getRecommendedChannelList().observe(getActivity(), (channels)->{
+            Log.i(TAG + "ViewModel", "Recommended Observe ");
             if(this.mTab == TabCategory.Recommended) {
                 setRows(channels);
             }
         });
 
 //        mViewModel.playlist(recommend_playlist_url);
-        mRecommendedChannel = mViewModel.getChannelList().getValue();
+        mRecommendedChannel = mViewModel.getRecommendedChannelList().getValue();
 
         setOnItemViewSelectedListener(new YouTubeCardSelectedListener());
     }
