@@ -19,7 +19,7 @@ public interface YoutubeService {
 
     @GET("search?part=snippet" +
             "&fields=items(id,snippet(title,channelTitle))" +
-            "&maxResults=1&order=viewCount&type=playlist&key=" + key)
+            "&maxResults=2&order=viewCount&type=playlist&key=" + key)
     Observable<Response<SearchResponse>> searchChannelPlaylist(@Query("channelId") String channelId);
 
     @GET("videos?part=snippet%2CcontentDetails%2Cstatistics&key=" + key)

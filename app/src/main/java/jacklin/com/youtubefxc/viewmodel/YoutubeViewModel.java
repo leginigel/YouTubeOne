@@ -24,13 +24,12 @@ import jacklin.com.youtubefxc.api.SearchResponse;
 import jacklin.com.youtubefxc.api.VideoResponse;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
 import jacklin.com.youtubefxc.network.NetworkDataModel;
-import jacklin.com.youtubefxc.ui.youtube.YoutubeRowFragment;
+import jacklin.com.youtubefxc.ui.youtube.YoutubeFragment;
 import retrofit2.Response;
 
 /**
- *  ViewModel for {@link jacklin.com.youtubefxc.ui.youtube.YoutubeRowFragment}
+ *  ViewModel for {@link YoutubeFragment}
  */
-
 public class YoutubeViewModel extends ViewModel {
     public static final String [] recommend_playlistId_url = {
             "PLzjFbaFzsmMS-b4t5Eh3LJcf3HYlmVWYe",
@@ -56,11 +55,17 @@ public class YoutubeViewModel extends ViewModel {
 
     private MutableLiveData<Map<String, List<YouTubeVideo>>> musicChannelList;
 
+    private MutableLiveData<Map<String, List<YouTubeVideo>>> latestChannelList;
+
+    private MutableLiveData<Map<String, List<YouTubeVideo>>> entertainChannelList;
+
+    private MutableLiveData<Map<String, List<YouTubeVideo>>> gamingChannelList;
+
     public LiveData<Map<String, List<YouTubeVideo>>> getMusicChannelList(){
         if(musicChannelList == null) {
             Log.v(TAG, "getMusicChannelList NULL");
             musicChannelList = new MutableLiveData<>();
-//            searchChannel(music_url, YoutubeRowFragment.TabCategory.Music);
+            searchChannel(music_url, YoutubeFragment.TabCategory.Music);
         }
         return musicChannelList;
     }
@@ -69,54 +74,42 @@ public class YoutubeViewModel extends ViewModel {
         if(recommendedChannelList == null) {
             Log.v(TAG, "getRecommendedChannelList NULL");
             recommendedChannelList = new MutableLiveData<>();
-//            List<YouTubeVideo> list = new ArrayList<>();
-//            for (int i = 0;i <= 3;i++)
-//                list.add(new YouTubeVideo(null,
-//                        null,
-//                        null, 0, null,null));
-//
-//            Map<String, List<YouTubeVideo>> map = new HashMap<>();
-//            for (int i = 0;i <= 3;i++)
-//                map.put(String.valueOf(i), list);
             playlist(recommend_playlistId_url);
         }
         return recommendedChannelList;
     }
 
-    public void searchChannel(String channelId, YoutubeRowFragment.TabCategory category){
-        List<SearchResponse.Items> temp = new ArrayList<>();
-        List<YouTubeVideo> ytv = new ArrayList<>();
+    public void searchChannel(String channelId, YoutubeFragment.TabCategory category){
         final String[] channelTitle = new String[1];
         Map<String, List<YouTubeVideo>> channel =
-                getMusicChannelList().getValue() == null ? new HashMap<>() : getRecommendedChannelList().getValue();
+                musicChannelList.getValue() == null ? new HashMap<>() : musicChannelList.getValue();
 
         networkDataModel.searchChannelPlaylist(channelId)
-                .flatMap(new Function<Response<SearchResponse>, Observable<String>>() {
+                .flatMap(new Function<Response<SearchResponse>, Observable<SearchResponse.Items>>() {
                     @Override
-                    public Observable<String> apply(Response<SearchResponse> searchResponse) throws Exception {
+                    public Observable<SearchResponse.Items> apply(Response<SearchResponse> searchResponse) throws Exception {
                         List<SearchResponse.Items> items = searchResponse.body().getItems();
-                        temp.addAll(items);
-
-                        List<String> playlistId = new ArrayList<>();
-                        for (SearchResponse.Items id : items){
-                            playlistId.add(id.getId().getPlaylistId());
-                        }
-                        return Observable.fromIterable(playlistId);
+                        return Observable.fromIterable(items);
                     }
                 })
-                .flatMap(new Function<String, ObservableSource<Response<PlaylistItems>>>() {
+                .flatMap(new Function<SearchResponse.Items, ObservableSource<Response<PlaylistItems>>>() {
                     @Override
-                    public ObservableSource<Response<PlaylistItems>> apply(String playlistId) throws Exception {
+                    public ObservableSource<Response<PlaylistItems>> apply(SearchResponse.Items items) throws Exception {
+                        channelTitle[0] = items.getSnippet().getTitle();
+                        String playlistId = items.getId().getPlaylistId();
+                        Log.d("searchChannel searchRes", channelTitle[0]);
+                        Log.d("searchChannel searchRes", playlistId);
                         return networkDataModel.playlistItems(playlistId);
                     }
                 })
                 .flatMap(new Function<Response<PlaylistItems>, ObservableSource<String>>() {
                     @Override
                     public ObservableSource<String> apply(Response<PlaylistItems> playlistItemsResponse) throws Exception {
-                        channelTitle[0] = playlistItemsResponse.body().getItems().get(0).getSnippet().getChannelTitle();
+
                         List<PlaylistItems.Items> items = playlistItemsResponse.body().getItems();
                         String multi_id = "";
                         for (PlaylistItems.Items i : items){
+                            Log.d("searchChannel Items", i.getSnippet().getTitle());
                             multi_id = multi_id + i.getSnippet().getResourceId().getVideoId() + ",";
                         }
                         return Observable.just(multi_id);
@@ -124,8 +117,8 @@ public class YoutubeViewModel extends ViewModel {
                 })
                 .flatMap(new Function<String, ObservableSource<Response<VideoResponse>>>() {
                     @Override
-                    public ObservableSource<Response<VideoResponse>> apply(String s) throws Exception {
-                        return networkDataModel.videoDetail(s);
+                    public ObservableSource<Response<VideoResponse>> apply(String videoId) throws Exception {
+                        return networkDataModel.videoDetail(videoId);
                     }
                 })
                 .subscribeOn(Schedulers.io())

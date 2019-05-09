@@ -42,7 +42,6 @@ import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
 public class YoutubeRowFragment extends RowsSupportFragment {
 
     private final static String TAG = YoutubeRowFragment.class.getSimpleName();
-    private YoutubeViewModel mViewModel;
     private List<YouTubeVideo> mVideoList = new ArrayList<>();
     private Map<String, List<YouTubeVideo>> mRecommendedChannel;
     private Map<String, List<YouTubeVideo>> mLatestChannel;
@@ -53,68 +52,35 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     private ListRowPresenter mListRowPresenter;
     private YouTubeCardPresenter mYouTubeCardPresenter;
 
-    private TabCategory mTab = TabCategory.Recommended;
-
-    public enum TabCategory {
-        Recommended, Latest, Music, Entertainment, Gaming
-    }
-
     public static YoutubeRowFragment newInstance() {
         return new YoutubeRowFragment();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_youtube_row, container, false);
-
         mYouTubeCardPresenter = new YouTubeCardPresenter();
         mListRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_XSMALL);
         mListRowPresenter.setShadowEnabled(true);
         mListRowPresenter.setSelectEffectEnabled(false);
         mRowsAdapter = new ArrayObjectAdapter(mListRowPresenter);
 
-        mTab = TabCategory.Recommended;
-
         setRows(null);
+
+        setOnItemViewSelectedListener(new YouTubeCardSelectedListener());
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(YoutubeViewModel.class);
+//    @Override
+//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//        Log.i(TAG, "onActivityCreated");
+//        mViewModel = ViewModelProviders.of(getActivity()).get(YoutubeViewModel.class);
+//    }
 
-        mViewModel.getRecommendedChannelList().observe(getActivity(), (channels)->{
-            Log.i(TAG + " ViewModel", "Recommended Observe ");
-            if(this.mTab == TabCategory.Recommended) {
-                mRecommendedChannel = channels;
-                setRows(mRecommendedChannel);
-            }
-        });
-        mViewModel.getMusicChannelList().observe(getActivity(), (channels)->{
-            Log.i(TAG + " ViewModel", "Music Observe ");
-            if(this.mTab == TabCategory.Music) {
-//                setRows(channels);
-//                mRecommendedChannel = channels;
-//                setRows(mRecommendedChannel);
-            }
-        });
-
-//        mViewModel.playlist(recommend_playlist_url);
-        mRecommendedChannel = mViewModel.getRecommendedChannelList().getValue();
-
-        setOnItemViewSelectedListener(new YouTubeCardSelectedListener());
-    }
-
-    private void setRows(Map<String, List<YouTubeVideo>> channelList){
+    public void setRows(Map<String, List<YouTubeVideo>> channelList){
 
         if(channelList == null){
             Log.d("Fragment Set Rows", "Channel NULL");
@@ -133,44 +99,19 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         else {
             Log.i("Fragment Set Rows", "Get Channels");
             mRowsAdapter.clear();
-            mCardsAdapter = new ArrayObjectAdapter(mYouTubeCardPresenter);
             channelList.forEach((channel,videos)->{
-                for (YouTubeVideo video : videos) {
-                    mCardsAdapter.add(video);
-                }
+                mCardsAdapter = new ArrayObjectAdapter(mYouTubeCardPresenter);
+
+                mCardsAdapter.addAll(0,videos);
                 Log.d("Fragment Set Rows", "Get Channel : " + channel + videos.get(0).getTitle());
                 HeaderItem headerItem = new HeaderItem(channel);
 
                 ListRow row = new ListRow(headerItem, mCardsAdapter);
                 mRowsAdapter.add(row);
-                mCardsAdapter.clear();
             });
 //            mRowsAdapter.notifyArrayItemRangeChanged(0, 10);
 //            setAdapter(mRowsAdapter);
         }
-    }
-
-    public void setTabCategory(TabCategory category){
-        this.mTab = category;
-        switch (category){
-            case Recommended:
-                Log.d(TAG, "Fragment setTabCategory Recommended");
-                setRows(mRecommendedChannel);
-                break;
-            case Latest:
-//                setRows(mLatestChannel);
-                break;
-            case Music:
-                Log.d(TAG, "Fragment setTabCategory Music");
-                setRows(mMusicChannel);
-                break;
-            case Entertainment:break;
-            case Gaming:break;
-        }
-    }
-
-    public TabCategory getTabCategory() {
-        return mTab;
     }
 
     private final class YouTubeCardSelectedListener implements OnItemViewSelectedListener{
