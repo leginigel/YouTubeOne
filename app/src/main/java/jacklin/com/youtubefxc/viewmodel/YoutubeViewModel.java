@@ -44,6 +44,8 @@ public class YoutubeViewModel extends ViewModel {
     };
 
     private String music_url = "UC-9-kyTW8ZkZNDHQJ6FgpwQ";
+    private String gaming_url = "UCOpNcN46UbXVtpKMrmU4Abg";
+    private String entertain_url = "UCi-g4cjqGV7jvU8aeSuj0jQ";
 
     private final static String TAG = YoutubeViewModel.class.getSimpleName();
 
@@ -60,6 +62,24 @@ public class YoutubeViewModel extends ViewModel {
     private MutableLiveData<Map<String, List<YouTubeVideo>>> entertainChannelList;
 
     private MutableLiveData<Map<String, List<YouTubeVideo>>> gamingChannelList;
+
+    public LiveData<Map<String, List<YouTubeVideo>>> getEntertainChannelList() {
+        if(entertainChannelList == null) {
+            Log.v(TAG, "getEntertainChannelList NULL");
+            entertainChannelList = new MutableLiveData<>();
+            searchChannel(entertain_url, YoutubeFragment.TabCategory.Entertainment);
+        }
+        return entertainChannelList;
+    }
+
+    public LiveData<Map<String, List<YouTubeVideo>>> getGamingChannelList() {
+        if(gamingChannelList == null) {
+            Log.v(TAG, "getGamingChannelList NULL");
+            gamingChannelList = new MutableLiveData<>();
+            searchChannel(gaming_url, YoutubeFragment.TabCategory.Gaming);
+        }
+        return gamingChannelList;
+    }
 
     public LiveData<Map<String, List<YouTubeVideo>>> getMusicChannelList(){
         if(musicChannelList == null) {
@@ -81,8 +101,19 @@ public class YoutubeViewModel extends ViewModel {
 
     public void searchChannel(String channelId, YoutubeFragment.TabCategory category){
         final String[] channelTitle = new String[1];
-        Map<String, List<YouTubeVideo>> channel =
-                musicChannelList.getValue() == null ? new HashMap<>() : musicChannelList.getValue();
+        Map<String, List<YouTubeVideo>> channel;
+        switch (category){
+            case Music:
+            default:
+                channel = musicChannelList.getValue() == null ? new HashMap<>() : musicChannelList.getValue();
+                break;
+            case Gaming:
+                channel = gamingChannelList.getValue() == null ? new HashMap<>() : gamingChannelList.getValue();
+                break;
+            case Entertainment:
+                channel = entertainChannelList.getValue() == null ? new HashMap<>() : entertainChannelList.getValue();
+                break;
+        }
 
         networkDataModel.searchChannelPlaylist(channelId)
                 .flatMap(new Function<Response<SearchResponse>, Observable<SearchResponse.Items>>() {
@@ -154,6 +185,13 @@ public class YoutubeViewModel extends ViewModel {
                         switch (category){
                             case Music:
                                 musicChannelList.postValue(channel);
+                                break;
+                            case Entertainment:
+                                entertainChannelList.postValue(channel);
+                                break;
+                            case Gaming:
+                                gamingChannelList.postValue(channel);
+                                break;
                         }
                     }
                 });

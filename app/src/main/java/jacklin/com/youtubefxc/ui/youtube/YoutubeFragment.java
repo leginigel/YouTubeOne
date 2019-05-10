@@ -35,6 +35,8 @@ public class YoutubeFragment extends Fragment {
 
     RecommendedFragment recommendedFragment;
     MusicFragment musicFragment;
+    GamingFragment gamingFragment;
+    EntertainFragment entertainFragment;
 
     private TabCategory mTab = TabCategory.Recommended;
 
@@ -43,6 +45,8 @@ public class YoutubeFragment extends Fragment {
                              Bundle savedInstanceState) {
         recommendedFragment = RecommendedFragment.newInstance();
         musicFragment = MusicFragment.newInstance();
+        gamingFragment = GamingFragment.newInstance();
+        entertainFragment = EntertainFragment.newInstance();
 
         View view = inflater.inflate(R.layout.youtube_fragment, container, false);
         if(savedInstanceState == null) {
@@ -59,8 +63,8 @@ public class YoutubeFragment extends Fragment {
         setButtonFocusListener(recommend, recommendedFragment, TabCategory.Recommended);
         setButtonFocusListener(latest, recommendedFragment, TabCategory.Recommended);
         setButtonFocusListener(music, musicFragment, TabCategory.Music);
-        setButtonFocusListener(entertain, recommendedFragment, TabCategory.Recommended);
-        setButtonFocusListener(gaming, recommendedFragment, TabCategory.Recommended);
+        setButtonFocusListener(entertain, entertainFragment, TabCategory.Entertainment);
+        setButtonFocusListener(gaming, gamingFragment, TabCategory.Gaming);
 
         return view;
     }
