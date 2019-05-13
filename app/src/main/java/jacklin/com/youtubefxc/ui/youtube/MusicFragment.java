@@ -29,6 +29,7 @@ public class MusicFragment extends YoutubeRowFragment {
     private static final String TAG = MusicFragment.class.getSimpleName();
     private YoutubeViewModel mViewModel;
     private Map<String, List<YouTubeVideo>> mMusicChannel;
+    private final YoutubeFragment.TabCategory mTabCategory = YoutubeFragment.TabCategory.Music;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -41,5 +42,10 @@ public class MusicFragment extends YoutubeRowFragment {
             setRows(mMusicChannel);
         });
 
+    }
+
+    @Override
+    public YoutubeFragment.TabCategory getTabCategory() {
+        return this.mTabCategory;
     }
 }

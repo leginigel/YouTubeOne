@@ -9,7 +9,10 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.Editable;
+import android.text.method.KeyListener;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +55,7 @@ public class YoutubeFragment extends Fragment {
         if(savedInstanceState == null) {
             fm = getFragmentManager();
             FragmentTransaction fmts = fm.beginTransaction();
-            fmts.replace(R.id.container, recommendedFragment).commit();
+            fmts.replace(R.id.container_row, recommendedFragment).commit();
         }
         Button recommend, latest, music, entertain, gaming;
         recommend = view.findViewById(R.id.recommend_btn);
@@ -66,6 +69,11 @@ public class YoutubeFragment extends Fragment {
         setButtonFocusListener(entertain, entertainFragment, TabCategory.Entertainment);
         setButtonFocusListener(gaming, gamingFragment, TabCategory.Gaming);
 
+        setButtonKeyListener(recommend, TabCategory.Recommended);
+        setButtonKeyListener(latest, TabCategory.Recommended);
+        setButtonKeyListener(music, TabCategory.Music);
+        setButtonKeyListener(entertain, TabCategory.Entertainment);
+        setButtonKeyListener(gaming, TabCategory.Gaming);
         return view;
     }
 
@@ -76,14 +84,30 @@ public class YoutubeFragment extends Fragment {
         YoutubeViewModel mViewModel = ViewModelProviders.of(getActivity()).get(YoutubeViewModel.class);
     }
 
+    void setButtonKeyListener(Button button, TabCategory category){
+        button.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if(event.getAction() == KeyEvent.ACTION_DOWN
+                && keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                    if(getTabCategory() == category) {
+                        button.setSelected(true);
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
     void setButtonFocusListener(Button button, Fragment fragment, TabCategory category){
         button.setOnFocusChangeListener((v, hasFocus) -> {
             if(hasFocus) {
+                button.setSelected(false);
                 button.setTextColor(Color.BLACK);
                 if(getTabCategory() != category)
                     setTabCategory(category);
                 fm.beginTransaction()
-                        .replace(R.id.container, fragment).commit();
+                        .replace(R.id.container_row, fragment).commit();
             }
             else{
                 button.setTextColor(getActivity().getResources().getColor(R.color.btn_text));

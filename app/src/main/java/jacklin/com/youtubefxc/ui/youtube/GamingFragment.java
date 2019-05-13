@@ -25,6 +25,7 @@ public class GamingFragment extends YoutubeRowFragment {
     private static final String TAG = GamingFragment.class.getSimpleName();
     private YoutubeViewModel mViewModel;
     private Map<String, List<YouTubeVideo>> mGamingChannel;
+    private final YoutubeFragment.TabCategory mTabCategory = YoutubeFragment.TabCategory.Gaming;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -37,5 +38,10 @@ public class GamingFragment extends YoutubeRowFragment {
             setRows(mGamingChannel);
         });
 
+    }
+
+    @Override
+    public YoutubeFragment.TabCategory getTabCategory() {
+        return this.mTabCategory;
     }
 }

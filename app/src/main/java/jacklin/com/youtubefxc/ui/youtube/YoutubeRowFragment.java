@@ -136,11 +136,34 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 //                mainImage.animate().scaleX(1.2f).scaleY(1.2f);
                 imgCard = (ImageCardView) cardViewHolder.getImageCardView();
 
+                switch (getTabCategory()){
+                    case Recommended:
+                        imgCard.setNextFocusUpId(R.id.recommend_btn);
+                        break;
+                    case Music:
+                        imgCard.setNextFocusUpId(R.id.music_btn);
+                        break;
+                    case Entertainment:
+                        imgCard.setNextFocusUpId(R.id.entertainment_btn);
+                        break;
+                    case Gaming:
+                        imgCard.setNextFocusUpId(R.id.gaming_btn);
+                        break;
+                }
+
+                Log.d("RowFrag", "test"+mRowsAdapter.indexOf(row) + mRowsAdapter.size());
+//                mRowsAdapter.indexOf(viewHolder1);
+                if(mRowsAdapter.indexOf(row) == mRowsAdapter.size() -1)
+                    imgCard.setNextFocusDownId(R.id.img_card_view);
                 imgCard.setInfoAreaBackgroundColor(Color.WHITE);
                 ((TextView) imgCard.findViewById(R.id.title_text))
                         .setTextColor(getResources().getColor(R.color.background));
             }
         }
 
+    }
+
+    public YoutubeFragment.TabCategory getTabCategory() {
+        return null;
     }
 }

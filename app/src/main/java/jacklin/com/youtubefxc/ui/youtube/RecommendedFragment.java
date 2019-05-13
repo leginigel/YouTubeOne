@@ -30,6 +30,7 @@ public class RecommendedFragment extends YoutubeRowFragment {
     private static final String TAG = RecommendedFragment.class.getSimpleName();
     private YoutubeViewModel mViewModel;
     private Map<String, List<YouTubeVideo>> mRecommendedChannel;
+    private final YoutubeFragment.TabCategory mTabCategory = YoutubeFragment.TabCategory.Recommended;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -44,5 +45,10 @@ public class RecommendedFragment extends YoutubeRowFragment {
 
 //        mViewModel.playlist(recommend_playlist_url);
 //        mRecommendedChannel = mViewModel.getRecommendedChannelList().getValue();
+    }
+
+    @Override
+    public YoutubeFragment.TabCategory getTabCategory() {
+        return this.mTabCategory;
     }
 }
