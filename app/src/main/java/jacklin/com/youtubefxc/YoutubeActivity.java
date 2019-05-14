@@ -3,19 +3,27 @@ package jacklin.com.youtubefxc;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+
+import com.google.android.youtube.player.YouTubeApiServiceUtil;
+import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
 import jacklin.com.youtubefxc.ui.search.SearchFragment;
 import jacklin.com.youtubefxc.ui.youtube.YoutubeFragment;
-import jacklin.com.youtubefxc.ui.youtube.YoutubeRowFragment;
 
 public class YoutubeActivity extends FragmentActivity {
     private static String TAG = YoutubeActivity.class.getSimpleName();
     private ImageView searchIcon, homeIcon, subIcon, folderIcon, settingIcon;
+    View playerBox;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,12 +31,18 @@ public class YoutubeActivity extends FragmentActivity {
 
         SearchFragment searchFragment = SearchFragment.newInstance();
         YoutubeFragment youtubeFragment = YoutubeFragment.newInstance();
-//        YoutubeRowFragment youtubeRowFragment = YoutubeRowFragment.newInstance();
+        YouTubePlayerSupportFragment youTubePlayerFragment = YouTubePlayerSupportFragment.newInstance();
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container_home, youtubeFragment)
                     .commitNow();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_youtube_player, youTubePlayerFragment)
+                    .commit();
         }
+
+        playerBox = findViewById(R.id.fragment_youtube_player);
+        playerBox.setVisibility(View.INVISIBLE);
 
         searchIcon = findViewById(R.id.search_btn);
         homeIcon = findViewById(R.id.home_btn);
@@ -59,6 +73,7 @@ public class YoutubeActivity extends FragmentActivity {
 ////            else
 ////                getSupportFragmentManager().beginTransaction().hide(searchFragment).commitNow();
 //        });
+        checkYouTubeApi();
     }
 
     void setIconFocusListener(ImageView image){
@@ -74,5 +89,29 @@ public class YoutubeActivity extends FragmentActivity {
                 image.setImageDrawable(drawble);
             }
         });
+    }
+
+    public View getPlayerBox() {
+        return playerBox;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (playerBox.getVisibility() == View.VISIBLE){
+            playerBox.setVisibility(View.INVISIBLE);
+        }
+        else
+        super.onBackPressed();
+    }
+
+    private void checkYouTubeApi() {
+        YouTubeInitializationResult errorReason =
+                YouTubeApiServiceUtil.isYouTubeApiServiceAvailable(this);
+        if (errorReason.isUserRecoverableError()) {
+            errorReason.getErrorDialog(this, 1).show();
+        } else {
+            String errorMessage = errorReason.toString();
+            Log.d("checkYouTubeApi", errorMessage);
+        }
     }
 }

@@ -14,6 +14,7 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
@@ -24,11 +25,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerSupportFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import jacklin.com.youtubefxc.R;
+import jacklin.com.youtubefxc.YoutubeActivity;
+import jacklin.com.youtubefxc.api.YoutubeService;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
 import jacklin.com.youtubefxc.ui.YouTubeCardPresenter;
 import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
@@ -51,6 +59,8 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     private ArrayObjectAdapter mRowsAdapter;
     private ListRowPresenter mListRowPresenter;
     private YouTubeCardPresenter mYouTubeCardPresenter;
+    private View videoBox;
+    private YouTubePlayerSupportFragment youTubePlayerFragment;
 
     public static YoutubeRowFragment newInstance() {
         return new YoutubeRowFragment();
@@ -68,7 +78,12 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 
         setRows(null);
 
+        youTubePlayerFragment = (YouTubePlayerSupportFragment) getActivity()
+                        .getSupportFragmentManager().findFragmentById(R.id.fragment_youtube_player);
+        videoBox = ((YoutubeActivity) getActivity()).getPlayerBox();
+
         setOnItemViewSelectedListener(new YouTubeCardSelectedListener());
+        setOnItemViewClickedListener(new YouTubeCardClickedListener());
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -161,6 +176,46 @@ public class YoutubeRowFragment extends RowsSupportFragment {
             }
         }
 
+    }
+
+    private final class YouTubeCardClickedListener implements OnItemViewClickedListener,
+            YouTubePlayer.OnInitializedListener {
+
+        private YouTubeVideo video;
+
+        @Override
+        public void onItemClicked(Presenter.ViewHolder viewHolder, Object o,
+                                  RowPresenter.ViewHolder viewHolder1, Row row) {
+            if(o instanceof YouTubeVideo) {
+                if(((YouTubeVideo) o).getId() != null){
+                    video = (YouTubeVideo) o;
+                    if (videoBox.getVisibility() != View.VISIBLE) {
+                        videoBox.setVisibility(View.VISIBLE);
+                        youTubePlayerFragment.initialize(YoutubeService.key, this);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
+            if (!wasRestored) {
+                Log.d("CheckPoint", "CheckPoint !wasRestored");
+                youTubePlayer.cueVideo(video.getId());
+            }
+        }
+
+        @Override
+        public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult errorReason) {
+            Log.d("onInitializationFailure", "Failed to initialize.");
+            if (errorReason.isUserRecoverableError()) {
+                errorReason.getErrorDialog(youTubePlayerFragment.getActivity(), 1).show();
+            } else {
+                String errorMessage = errorReason.toString();
+                Log.d("onInitializationFailure", errorMessage);
+            }
+
+        }
     }
 
     public YoutubeFragment.TabCategory getTabCategory() {
