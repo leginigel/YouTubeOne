@@ -1,6 +1,5 @@
 package jacklin.com.youtubefxc.ui.youtube;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,18 +24,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import jacklin.com.youtubefxc.R;
 import jacklin.com.youtubefxc.YoutubeActivity;
-import jacklin.com.youtubefxc.api.YoutubeService;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
 import jacklin.com.youtubefxc.ui.YouTubeCardPresenter;
 import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
@@ -59,7 +55,8 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     private ArrayObjectAdapter mRowsAdapter;
     private ListRowPresenter mListRowPresenter;
     private YouTubeCardPresenter mYouTubeCardPresenter;
-    private View videoBox;
+    private View mVideoBox;
+    private YouTubePlayer mPlayer;
     private YouTubePlayerSupportFragment youTubePlayerFragment;
 
     public static YoutubeRowFragment newInstance() {
@@ -80,7 +77,8 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 
         youTubePlayerFragment = (YouTubePlayerSupportFragment) getActivity()
                         .getSupportFragmentManager().findFragmentById(R.id.fragment_youtube_player);
-        videoBox = ((YoutubeActivity) getActivity()).getPlayerBox();
+        mVideoBox = ((YoutubeActivity) getActivity()).getPlayerBox();
+        mPlayer = ((YoutubeActivity) getActivity()).getYouTubePlayer();
 
         setOnItemViewSelectedListener(new YouTubeCardSelectedListener());
         setOnItemViewClickedListener(new YouTubeCardClickedListener());
@@ -141,6 +139,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
             if(o instanceof YouTubeVideo) {
 
                 if(imgCard != null){
+                    Log.d("onItemSelected","Select " + ((YouTubeVideo) o).getTitle()+ getTabCategory());
                     imgCard.setInfoAreaBackgroundColor(getResources().getColor(R.color.background));
                     ((TextView) imgCard.findViewById(R.id.title_text))
                             .setTextColor(Color.WHITE);
@@ -149,8 +148,9 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 //                imgCard = (ImageCardView) viewHolder.view;
 //                ImageView mainImage = cardViewHolder.view.findViewById(R.id.main_image);
 //                mainImage.animate().scaleX(1.2f).scaleY(1.2f);
-                imgCard = (ImageCardView) cardViewHolder.getImageCardView();
 
+                imgCard = (ImageCardView) cardViewHolder.getImageCardView();
+Log.d("onItemSelected","Select " + ((YouTubeVideo) o).getTitle()+ getTabCategory());
                 switch (getTabCategory()){
                     case Recommended:
                         imgCard.setNextFocusUpId(R.id.recommend_btn);
@@ -166,10 +166,10 @@ public class YoutubeRowFragment extends RowsSupportFragment {
                         break;
                 }
 
+                if(mRowsAdapter.indexOf(row) == mRowsAdapter.size() -1) {
                 Log.d("RowFrag", "test"+mRowsAdapter.indexOf(row) + mRowsAdapter.size());
-//                mRowsAdapter.indexOf(viewHolder1);
-                if(mRowsAdapter.indexOf(row) == mRowsAdapter.size() -1)
                     imgCard.setNextFocusDownId(R.id.img_card_view);
+                }
                 imgCard.setInfoAreaBackgroundColor(Color.WHITE);
                 ((TextView) imgCard.findViewById(R.id.title_text))
                         .setTextColor(getResources().getColor(R.color.background));
@@ -178,10 +178,9 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 
     }
 
-    private final class YouTubeCardClickedListener implements OnItemViewClickedListener,
-            YouTubePlayer.OnInitializedListener {
+    private final class YouTubeCardClickedListener implements OnItemViewClickedListener {
 
-        private YouTubeVideo video;
+        private YouTubeVideo video = null;
 
         @Override
         public void onItemClicked(Presenter.ViewHolder viewHolder, Object o,
@@ -189,32 +188,12 @@ public class YoutubeRowFragment extends RowsSupportFragment {
             if(o instanceof YouTubeVideo) {
                 if(((YouTubeVideo) o).getId() != null){
                     video = (YouTubeVideo) o;
-                    if (videoBox.getVisibility() != View.VISIBLE) {
-                        videoBox.setVisibility(View.VISIBLE);
-                        youTubePlayerFragment.initialize(YoutubeService.key, this);
+                    if (mVideoBox.getVisibility() != View.VISIBLE) {
+                        mVideoBox.setVisibility(View.VISIBLE);
+                        mPlayer.loadVideo(video.getId());
                     }
                 }
             }
-        }
-
-        @Override
-        public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
-            if (!wasRestored) {
-                Log.d("CheckPoint", "CheckPoint !wasRestored");
-                youTubePlayer.cueVideo(video.getId());
-            }
-        }
-
-        @Override
-        public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult errorReason) {
-            Log.d("onInitializationFailure", "Failed to initialize.");
-            if (errorReason.isUserRecoverableError()) {
-                errorReason.getErrorDialog(youTubePlayerFragment.getActivity(), 1).show();
-            } else {
-                String errorMessage = errorReason.toString();
-                Log.d("onInitializationFailure", errorMessage);
-            }
-
         }
     }
 

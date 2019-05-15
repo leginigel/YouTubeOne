@@ -13,15 +13,26 @@ import android.widget.ImageView;
 
 import com.google.android.youtube.player.YouTubeApiServiceUtil;
 import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
+import jacklin.com.youtubefxc.api.YoutubeService;
 import jacklin.com.youtubefxc.ui.search.SearchFragment;
 import jacklin.com.youtubefxc.ui.youtube.YoutubeFragment;
 
-public class YoutubeActivity extends FragmentActivity {
+public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.OnInitializedListener{
+
+    private static final int RECOVERY_DIALOG_REQUEST = 1;
     private static String TAG = YoutubeActivity.class.getSimpleName();
+    private YoutubeFragment youtubeFragment;
     private ImageView searchIcon, homeIcon, subIcon, folderIcon, settingIcon;
-    View playerBox;
+    private View playerBox;
+    private YouTubePlayer youTubePlayer;
+    private PageCategory mPageCategory;
+
+    public enum PageCategory {
+        Search, Home
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -30,7 +41,7 @@ public class YoutubeActivity extends FragmentActivity {
         setContentView(R.layout.youtube_activity);
 
         SearchFragment searchFragment = SearchFragment.newInstance();
-        YoutubeFragment youtubeFragment = YoutubeFragment.newInstance();
+        youtubeFragment = YoutubeFragment.newInstance();
         YouTubePlayerSupportFragment youTubePlayerFragment = YouTubePlayerSupportFragment.newInstance();
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -41,8 +52,11 @@ public class YoutubeActivity extends FragmentActivity {
                     .commit();
         }
 
+        youTubePlayerFragment.initialize(YoutubeService.key, this);
         playerBox = findViewById(R.id.fragment_youtube_player);
         playerBox.setVisibility(View.INVISIBLE);
+
+        mPageCategory = PageCategory.Home;
 
         searchIcon = findViewById(R.id.search_btn);
         homeIcon = findViewById(R.id.home_btn);
@@ -50,11 +64,11 @@ public class YoutubeActivity extends FragmentActivity {
         folderIcon = findViewById(R.id.folder_btn);
         settingIcon = findViewById(R.id.setting_btn);
 
-        setIconFocusListener(searchIcon);
-        setIconFocusListener(homeIcon);
-        setIconFocusListener(subIcon);
-        setIconFocusListener(folderIcon);
-        setIconFocusListener(settingIcon);
+        setIconFocusListener(searchIcon, PageCategory.Search);
+        setIconFocusListener(homeIcon, PageCategory.Home);
+        setIconFocusListener(subIcon, PageCategory.Search);
+        setIconFocusListener(folderIcon, PageCategory.Search);
+        setIconFocusListener(settingIcon, PageCategory.Search);
 
 //        homeIcon.setOnFocusChangeListener((v, hasFocus) -> {
 //            if(hasFocus) {
@@ -76,7 +90,7 @@ public class YoutubeActivity extends FragmentActivity {
         checkYouTubeApi();
     }
 
-    void setIconFocusListener(ImageView image){
+    void setIconFocusListener(ImageView image, PageCategory category){
         image.setOnFocusChangeListener((v, hasFocus)->{
             Drawable drawble = image.getDrawable();
             if(hasFocus) {
@@ -85,7 +99,10 @@ public class YoutubeActivity extends FragmentActivity {
                 image.setImageDrawable(drawble);
             }
             else{
-                drawble.setColorFilter(getResources().getColor(R.color.button), PorterDuff.Mode.SRC_IN);
+                if(category == this.mPageCategory)
+                    drawble.setColorFilter(getResources().getColor(R.color.button_selecting), PorterDuff.Mode.SRC_IN);
+                else
+                    drawble.setColorFilter(getResources().getColor(R.color.button), PorterDuff.Mode.SRC_IN);
                 image.setImageDrawable(drawble);
             }
         });
@@ -93,6 +110,45 @@ public class YoutubeActivity extends FragmentActivity {
 
     public View getPlayerBox() {
         return playerBox;
+    }
+
+    public YouTubePlayer getYouTubePlayer() {
+        return youTubePlayer;
+    }
+
+    public YouTubePlayer.Provider getYouTubePlayerProvider() {
+        return (YouTubePlayerSupportFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_youtube_player);
+    }
+
+    @Override
+    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
+//            youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
+//            youTubePlayer.setFullscreenControlFlags(YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
+        this.youTubePlayer = youTubePlayer;
+//            youTubePlayer.setPlaylistEventListener(playlistEventListener);
+//            youTubePlayer.setPlayerStateChangeListener(playerStateChangeListener);
+//            youTubePlayer.setPlaybackEventListener(playbackEventListener);
+        if (!wasRestored) {
+            Log.d("CheckPoint", "CheckPoint !wasRestored");
+//                youTubePlayer.cueVideo(video.getId());
+//                youTubePlayer.play();
+//            youTubePlayer.loadVideo(video.getId());
+        }
+        else{
+            Log.d("CheckPoint", "CheckPoint Restored");
+        }
+    }
+
+    @Override
+    public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult errorReason) {
+        Log.d("onInitializationFailure", "Failed to initialize.");
+        if (errorReason.isUserRecoverableError()) {
+            errorReason.getErrorDialog(this, RECOVERY_DIALOG_REQUEST).show();
+        } else {
+            String errorMessage = errorReason.toString();
+            Log.d("onInitializationFailure", errorMessage);
+        }
+
     }
 
     @Override
@@ -108,7 +164,7 @@ public class YoutubeActivity extends FragmentActivity {
         YouTubeInitializationResult errorReason =
                 YouTubeApiServiceUtil.isYouTubeApiServiceAvailable(this);
         if (errorReason.isUserRecoverableError()) {
-            errorReason.getErrorDialog(this, 1).show();
+            errorReason.getErrorDialog(this, RECOVERY_DIALOG_REQUEST).show();
         } else {
             String errorMessage = errorReason.toString();
             Log.d("checkYouTubeApi", errorMessage);
