@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.google.android.youtube.player.YouTubeApiServiceUtil;
@@ -17,24 +19,29 @@ import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
 import jacklin.com.youtubefxc.api.YoutubeService;
+import jacklin.com.youtubefxc.ui.PlayerControlsFragment;
 import jacklin.com.youtubefxc.ui.search.SearchFragment;
 import jacklin.com.youtubefxc.ui.youtube.YoutubeFragment;
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.OnInitializedListener{
 
     private static final int RECOVERY_DIALOG_REQUEST = 1;
     private static String TAG = YoutubeActivity.class.getSimpleName();
-    private YoutubeFragment youtubeFragment;
-    private ImageView searchIcon, homeIcon, subIcon, folderIcon, settingIcon;
-    private View playerBox;
-    private YouTubePlayer youTubePlayer;
     private PageCategory mPageCategory;
+
+    private YoutubeFragment youtubeFragment;
+    private PlayerControlsFragment playerControlsFragment;
+    private YouTubePlayer youTubePlayer;
+
+    private ImageView searchIcon, homeIcon, subIcon, folderIcon, settingIcon;
+    private ViewGroup leftNav;
+    private View playerBox, playerControls;
 
     public enum PageCategory {
         Search, Home
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,27 +49,65 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
 
         SearchFragment searchFragment = SearchFragment.newInstance();
         youtubeFragment = YoutubeFragment.newInstance();
+        playerControlsFragment = playerControlsFragment.newInstance();
         YouTubePlayerSupportFragment youTubePlayerFragment = YouTubePlayerSupportFragment.newInstance();
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
+//                    .addToBackStack(tag)
                     .replace(R.id.container_home, youtubeFragment)
                     .commitNow();
             getSupportFragmentManager().beginTransaction()
+//                    .addToBackStack(tag)
                     .replace(R.id.fragment_youtube_player, youTubePlayerFragment)
+                    .commit();
+            getSupportFragmentManager().beginTransaction()
+//                    .addToBackStack(tag)
+                    .replace(R.id.fragment_player_controls, playerControlsFragment)
                     .commit();
         }
 
         youTubePlayerFragment.initialize(YoutubeService.key, this);
+        playerControls = findViewById(R.id.fragment_player_controls);
+        playerControls.setVisibility(View.INVISIBLE);
         playerBox = findViewById(R.id.fragment_youtube_player);
         playerBox.setVisibility(View.INVISIBLE);
+        playerBox.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+                    Log.d("onKey","KEYCODE_DPAD_DOWN");
+                    playerControls.setVisibility(View.VISIBLE);
+                    playerControls.requestFocus();
+                    playerControlsFragment.showTime();
+                    return true;
+                }
+                return false;
+            }
+        });
 
         mPageCategory = PageCategory.Home;
+
+        leftNav = findViewById(R.id.left_nav);
+        leftNav.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
         searchIcon = findViewById(R.id.search_btn);
         homeIcon = findViewById(R.id.home_btn);
         subIcon = findViewById(R.id.subscribe_btn);
         folderIcon = findViewById(R.id.folder_btn);
         settingIcon = findViewById(R.id.setting_btn);
+
+//        leftNav.setOnFocusChangeListener((v, hasFocus) -> {
+//            if(hasFocus){
+//                Log.d("LeftNav","hasFocus");
+//                switch (mPageCategory){
+//                    case Home:homeIcon.requestFocus();break;
+//                }
+//            }
+//            else{
+//                Log.d("LeftNav","!hasFocus");
+//            }
+//
+//        });
 
         setIconFocusListener(searchIcon, PageCategory.Search);
         setIconFocusListener(homeIcon, PageCategory.Home);
@@ -90,11 +135,20 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
         checkYouTubeApi();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (KeyEvent.KEYCODE_DPAD_DOWN == keyCode){
+            getSupportFragmentManager().findFragmentById(R.id.container_row);
+//            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     void setIconFocusListener(ImageView image, PageCategory category){
         image.setOnFocusChangeListener((v, hasFocus)->{
             Drawable drawble = image.getDrawable();
             if(hasFocus) {
-                Log.d(TAG, "Icon on Focus");
+                Log.d(TAG, "Icon on Focus " + category);
                 drawble.setColorFilter(getResources().getColor(R.color.left_nav), PorterDuff.Mode.MULTIPLY);
                 image.setImageDrawable(drawble);
             }
@@ -122,7 +176,8 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
 
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
-//            youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
+        youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
+//        youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.MINIMAL);
 //            youTubePlayer.setFullscreenControlFlags(YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
         this.youTubePlayer = youTubePlayer;
 //            youTubePlayer.setPlaylistEventListener(playlistEventListener);
@@ -155,6 +210,7 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
     public void onBackPressed() {
         if (playerBox.getVisibility() == View.VISIBLE){
             playerBox.setVisibility(View.INVISIBLE);
+            playerControls.setVisibility(View.INVISIBLE);
         }
         else
         super.onBackPressed();

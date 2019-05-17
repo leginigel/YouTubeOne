@@ -76,7 +76,7 @@ public class YouTubeCardPresenter extends Presenter {
 //        CustomCardView imgCard = cardViewHolder.mImageCardView;
 
         if(youTubeVideo.getId() != null){
-            Log.d("YouTubeCardPresenter" , "!cardViewHolder.isLoading");
+            Log.v("YouTubeCardPresenter" , "!cardViewHolder.isLoading");
             cardViewHolder.setCardInfo();
         imgCard.setTitleText(Html.fromHtml(youTubeVideo.getTitle()));
         imgCard.setContentText(youTubeVideo.getChannel() + "\n"
@@ -108,16 +108,21 @@ public class YouTubeCardPresenter extends Presenter {
         public CardViewHolder(View view) {
             super(view);
 //            mImageCardView = (CustomCardView) view;
+            view.setFocusable(true);
+            view.setFocusableInTouchMode(true);
+            view.setClickable(true);
+            view.setNextFocusLeftId(R.id.home_btn);
+            view.setNextFocusDownId(R.id.container_row);
             mImageCardView = (ImageCardView) view.findViewById(R.id.img_card_view);
             mTimeStamp = view.findViewById(R.id.img_card_time_stamp);
             mTitle = (TextView) mImageCardView.findViewById(R.id.title_text);
             mContent = (TextView) mImageCardView.findViewById(R.id.content_text);
 
-            mImageCardView.setNextFocusLeftId(R.id.home_btn);
             mImageCardView.setCardType(ImageCardView.CARD_TYPE_INFO_UNDER);
             mImageCardView.setInfoVisibility(BaseCardView.CARD_REGION_VISIBLE_ACTIVATED);
-            mImageCardView.setFocusable(true);
-            mImageCardView.setFocusableInTouchMode(true);
+//            mImageCardView.setNextFocusLeftId(R.id.home_btn);
+//            mImageCardView.setFocusable(true);
+//            mImageCardView.setFocusableInTouchMode(true);
             mImageCardView.setMainImageDimensions(500, 281);
             mImageCardView.setInfoAreaBackgroundColor(mContext.getResources().getColor(R.color.background));
             mImageCardView.setBackgroundColor(mContext.getResources().getColor(R.color.card_loading));
@@ -146,7 +151,7 @@ public class YouTubeCardPresenter extends Presenter {
         }
 
         public void setCardInfo(){
-            Log.d("YouTubeCardPresenter" , "setCardInfo");
+            Log.v("YouTubeCardPresenter" , "setCardInfo");
             mTitle.setTextSize(20);
             mTitle.setTextColor(Color.WHITE);
             mTitle.setBackgroundColor(Color.TRANSPARENT);

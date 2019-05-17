@@ -97,6 +97,8 @@ public class Utils {
             long minute = TimeUnit.MILLISECONDS.toMinutes(dateDiff);
             long hour = TimeUnit.MILLISECONDS.toHours(dateDiff);
             long day = TimeUnit.MILLISECONDS.toDays(dateDiff);
+            if(second < 0)
+                second = 0;
             if(second < 60) {
                 convTime = second + " seconds ";
             } else if(minute < 60) {

@@ -94,7 +94,7 @@ public class YoutubeViewModel extends ViewModel {
         if(recommendedChannelList == null) {
             Log.v(TAG, "getRecommendedChannelList NULL");
             recommendedChannelList = new MutableLiveData<>();
-            playlist(recommend_playlistId_url);
+//            playlist(recommend_playlistId_url);
         }
         return recommendedChannelList;
     }
@@ -128,8 +128,7 @@ public class YoutubeViewModel extends ViewModel {
                     public ObservableSource<Response<PlaylistItems>> apply(SearchResponse.Items items) throws Exception {
                         channelTitle[0] = items.getSnippet().getTitle();
                         String playlistId = items.getId().getPlaylistId();
-                        Log.d("searchChannel searchRes", channelTitle[0]);
-                        Log.d("searchChannel searchRes", playlistId);
+                        Log.d("searchChannel searchRes", channelTitle[0] + playlistId);
                         return networkDataModel.playlistItems(playlistId);
                     }
                 })
@@ -140,7 +139,7 @@ public class YoutubeViewModel extends ViewModel {
                         List<PlaylistItems.Items> items = playlistItemsResponse.body().getItems();
                         String multi_id = "";
                         for (PlaylistItems.Items i : items){
-                            Log.d("searchChannel Items", i.getSnippet().getTitle());
+                            Log.v("searchChannel Items", i.getSnippet().getTitle());
                             multi_id = multi_id + i.getSnippet().getResourceId().getVideoId() + ",";
                         }
                         return Observable.just(multi_id);
@@ -270,7 +269,6 @@ public class YoutubeViewModel extends ViewModel {
                     @Override
                     public void onComplete() {
                         Log.d(TAG, "onComplete : Size " + channel.size());
-
                         recommendedChannelList.setValue(channel);
                     }
                 });

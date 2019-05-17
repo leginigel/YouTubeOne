@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="@style/Theme.Leanback" />
+    <style name="AppTheme" parent="@style/Theme.Leanback" >
+        <item name="rowHorizontalGridStyle">@style/CustomHorizontalGridView</item>
+        <item name="rowHeaderDescriptionStyle">@style/CustomHeader</item>
+        <item name="rowHeaderDockStyle">@style/CustomHeaderDock</item>
+    </style>
+    <style name="CustomHorizontalGridView" parent="Widget.Leanback.Row.HorizontalGridView">
+        <item name="android:paddingStart">28dp</item>
+        <item name="android:horizontalSpacing">12dp</item>
+    </style>
+    <style name="CustomHeader" parent="Widget.Leanback.Row.Header">
+        <item name="android:textColor">@color/button_selecting</item>
+    </style>
+    <style name="CustomHeaderDock" parent="Widget.Leanback.Row.HeaderDock">
+        <item name="android:paddingStart">28dp</item>
+    </style>
 
     <style name="LauncherColor" parent="Theme.AppCompat.Light.DarkActionBar">
 

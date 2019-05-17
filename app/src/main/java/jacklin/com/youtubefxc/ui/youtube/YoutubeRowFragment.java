@@ -19,6 +19,7 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ import java.util.Map;
 import jacklin.com.youtubefxc.R;
 import jacklin.com.youtubefxc.YoutubeActivity;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
+import jacklin.com.youtubefxc.ui.PlayerControlsFragment;
 import jacklin.com.youtubefxc.ui.YouTubeCardPresenter;
 import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
 
@@ -51,6 +53,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     private Map<String, List<YouTubeVideo>> mLatestChannel;
     private Map<String, List<YouTubeVideo>> mMusicChannel;
 
+    private ViewGroup mContainer;
     private ArrayObjectAdapter mCardsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
     private ListRowPresenter mListRowPresenter;
@@ -58,6 +61,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     private View mVideoBox;
     private YouTubePlayer mPlayer;
     private YouTubePlayerSupportFragment youTubePlayerFragment;
+    private PlayerControlsFragment playerControlsFragment;
 
     public static YoutubeRowFragment newInstance() {
         return new YoutubeRowFragment();
@@ -73,10 +77,15 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         mListRowPresenter.setSelectEffectEnabled(false);
         mRowsAdapter = new ArrayObjectAdapter(mListRowPresenter);
 
+        // FIXME: 2019/5/16 Focus broken with OnItemViewClickedListener
+        mContainer = container;
+//container.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         setRows(null);
 
         youTubePlayerFragment = (YouTubePlayerSupportFragment) getActivity()
                         .getSupportFragmentManager().findFragmentById(R.id.fragment_youtube_player);
+        playerControlsFragment = (PlayerControlsFragment) getActivity()
+                .getSupportFragmentManager().findFragmentById(R.id.fragment_player_controls);
         mVideoBox = ((YoutubeActivity) getActivity()).getPlayerBox();
         mPlayer = ((YoutubeActivity) getActivity()).getYouTubePlayer();
 
@@ -139,7 +148,6 @@ public class YoutubeRowFragment extends RowsSupportFragment {
             if(o instanceof YouTubeVideo) {
 
                 if(imgCard != null){
-                    Log.d("onItemSelected","Select " + ((YouTubeVideo) o).getTitle()+ getTabCategory());
                     imgCard.setInfoAreaBackgroundColor(getResources().getColor(R.color.background));
                     ((TextView) imgCard.findViewById(R.id.title_text))
                             .setTextColor(Color.WHITE);
@@ -150,7 +158,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 //                mainImage.animate().scaleX(1.2f).scaleY(1.2f);
 
                 imgCard = (ImageCardView) cardViewHolder.getImageCardView();
-Log.d("onItemSelected","Select " + ((YouTubeVideo) o).getTitle()+ getTabCategory());
+
                 switch (getTabCategory()){
                     case Recommended:
                         imgCard.setNextFocusUpId(R.id.recommend_btn);
@@ -167,7 +175,7 @@ Log.d("onItemSelected","Select " + ((YouTubeVideo) o).getTitle()+ getTabCategory
                 }
 
                 if(mRowsAdapter.indexOf(row) == mRowsAdapter.size() -1) {
-                Log.d("RowFrag", "test"+mRowsAdapter.indexOf(row) + mRowsAdapter.size());
+//                mContainer.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
                     imgCard.setNextFocusDownId(R.id.img_card_view);
                 }
                 imgCard.setInfoAreaBackgroundColor(Color.WHITE);
@@ -189,7 +197,9 @@ Log.d("onItemSelected","Select " + ((YouTubeVideo) o).getTitle()+ getTabCategory
                 if(((YouTubeVideo) o).getId() != null){
                     video = (YouTubeVideo) o;
                     if (mVideoBox.getVisibility() != View.VISIBLE) {
+                        playerControlsFragment.setVideo(video);
                         mVideoBox.setVisibility(View.VISIBLE);
+                        mVideoBox.requestFocus();
                         mPlayer.loadVideo(video.getId());
                     }
                 }
