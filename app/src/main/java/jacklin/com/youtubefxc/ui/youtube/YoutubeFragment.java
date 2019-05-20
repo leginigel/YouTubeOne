@@ -40,8 +40,9 @@ public class YoutubeFragment extends Fragment {
     MusicFragment musicFragment;
     GamingFragment gamingFragment;
     EntertainFragment entertainFragment;
+    LatestFragment latestFragment;
 
-    private TabCategory mTab = TabCategory.Recommended;
+    private TabCategory mTab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,6 +51,7 @@ public class YoutubeFragment extends Fragment {
         musicFragment = MusicFragment.newInstance();
         gamingFragment = GamingFragment.newInstance();
         entertainFragment = EntertainFragment.newInstance();
+        latestFragment = LatestFragment.newInstance();
 
         View view = inflater.inflate(R.layout.youtube_fragment, container, false);
         if(savedInstanceState == null) {
@@ -63,14 +65,18 @@ public class YoutubeFragment extends Fragment {
         music = view.findViewById(R.id.music_btn);
         entertain = view.findViewById(R.id.entertainment_btn);
         gaming = view.findViewById(R.id.gaming_btn);
+
+        mTab = TabCategory.Recommended;
+        recommend.setSelected(true);
+
         setButtonFocusListener(recommend, recommendedFragment, TabCategory.Recommended);
-        setButtonFocusListener(latest, recommendedFragment, TabCategory.Recommended);
+        setButtonFocusListener(latest, latestFragment, TabCategory.Latest);
         setButtonFocusListener(music, musicFragment, TabCategory.Music);
         setButtonFocusListener(entertain, entertainFragment, TabCategory.Entertainment);
         setButtonFocusListener(gaming, gamingFragment, TabCategory.Gaming);
 
         setButtonKeyListener(recommend, TabCategory.Recommended);
-        setButtonKeyListener(latest, TabCategory.Recommended);
+        setButtonKeyListener(latest, TabCategory.Latest);
         setButtonKeyListener(music, TabCategory.Music);
         setButtonKeyListener(entertain, TabCategory.Entertainment);
         setButtonKeyListener(gaming, TabCategory.Gaming);
@@ -85,17 +91,18 @@ public class YoutubeFragment extends Fragment {
     }
 
     void setButtonKeyListener(Button button, TabCategory category){
-        button.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if(event.getAction() == KeyEvent.ACTION_DOWN
-                && keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+        button.setOnKeyListener((v, keyCode, event) -> {
+            if(event.getAction() == KeyEvent.ACTION_DOWN) {
+                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                     if(getTabCategory() == category) {
                         button.setSelected(true);
                     }
                 }
-                return false;
+                if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT && category == TabCategory.Recommended) {
+                    button.setSelected(true);
+                }
             }
+            return false;
         });
     }
 
@@ -111,6 +118,8 @@ public class YoutubeFragment extends Fragment {
             }
             else{
                 button.setTextColor(getActivity().getResources().getColor(R.color.btn_text));
+                if(button.isSelected())
+                    button.setTextColor(getActivity().getResources().getColor(R.color.button_selecting));
             }
         });
     }

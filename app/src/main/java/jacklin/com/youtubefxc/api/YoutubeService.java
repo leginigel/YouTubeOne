@@ -27,4 +27,13 @@ public interface YoutubeService {
 
     @GET("playlistItems?part=snippet%2Cid&maxResults=10&key=" + key)
     Observable<Response<PlaylistItems>>  playlistItems(@Query("playlistId") String playlistId);
+
+    @GET("videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=10&key=" + key)
+    Observable<Response<VideoResponse>>  videoPopular();
+
+    @GET("search?part=snippet" +
+            "&fields=items(id)" +
+            "&maxResults=10&order=viewCount&type=video&key=" + key)
+    Observable<Response<SearchResponse>> searchLatestWeek(@Query("publishedAfter") String publishedAfter,
+                                                          @Query("publishedBefore") String publishedBefore);
 }

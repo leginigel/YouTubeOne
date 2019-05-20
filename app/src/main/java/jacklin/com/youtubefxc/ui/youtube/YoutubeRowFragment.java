@@ -136,6 +136,8 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         }
     }
 
+
+
     private final class YouTubeCardSelectedListener implements OnItemViewSelectedListener{
 
         private ImageCardView imgCard = null;
@@ -158,21 +160,6 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 //                mainImage.animate().scaleX(1.2f).scaleY(1.2f);
 
                 imgCard = (ImageCardView) cardViewHolder.getImageCardView();
-
-                switch (getTabCategory()){
-                    case Recommended:
-                        imgCard.setNextFocusUpId(R.id.recommend_btn);
-                        break;
-                    case Music:
-                        imgCard.setNextFocusUpId(R.id.music_btn);
-                        break;
-                    case Entertainment:
-                        imgCard.setNextFocusUpId(R.id.entertainment_btn);
-                        break;
-                    case Gaming:
-                        imgCard.setNextFocusUpId(R.id.gaming_btn);
-                        break;
-                }
 
                 if(mRowsAdapter.indexOf(row) == mRowsAdapter.size() -1) {
 //                mContainer.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);

@@ -3,7 +3,7 @@
 
     <style name="AppTheme" parent="@style/Theme.Leanback" >
         <item name="rowHorizontalGridStyle">@style/CustomHorizontalGridView</item>
-        <item name="rowHeaderDescriptionStyle">@style/CustomHeader</item>
+        <item name="rowHeaderStyle">@style/CustomHeader</item>
         <item name="rowHeaderDockStyle">@style/CustomHeaderDock</item>
     </style>
     <style name="CustomHorizontalGridView" parent="Widget.Leanback.Row.HorizontalGridView">

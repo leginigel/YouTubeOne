@@ -52,4 +52,12 @@ public class NetworkDataModel {
     public Observable<Response<SearchResponse>> searchChannelPlaylist(String channelId){
         return youtubeService.searchChannelPlaylist(channelId);
     }
+
+    public Observable<Response<VideoResponse>> videoPopular(){
+        return youtubeService.videoPopular();
+    }
+
+    public Observable<Response<SearchResponse>> searchLatestWeek(String publishAfter, String publishBefore){
+        return youtubeService.searchLatestWeek(publishAfter, publishBefore);
+    }
 }

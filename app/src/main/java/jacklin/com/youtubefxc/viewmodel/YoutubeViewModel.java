@@ -7,7 +7,9 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +45,9 @@ public class YoutubeViewModel extends ViewModel {
 //                "PL57quI9usf_vDPXuhqIjyrPIjkw3C1oPe",
     };
 
-    private String music_url = "UC-9-kyTW8ZkZNDHQJ6FgpwQ";
-    private String gaming_url = "UCOpNcN46UbXVtpKMrmU4Abg";
-    private String entertain_url = "UCi-g4cjqGV7jvU8aeSuj0jQ";
+    private static final String music_url = "UC-9-kyTW8ZkZNDHQJ6FgpwQ";
+    private static final String gaming_url = "UCOpNcN46UbXVtpKMrmU4Abg";
+    private static final String entertain_url = "UCi-g4cjqGV7jvU8aeSuj0jQ";
 
     private final static String TAG = YoutubeViewModel.class.getSimpleName();
 
@@ -62,6 +64,15 @@ public class YoutubeViewModel extends ViewModel {
     private MutableLiveData<Map<String, List<YouTubeVideo>>> entertainChannelList;
 
     private MutableLiveData<Map<String, List<YouTubeVideo>>> gamingChannelList;
+
+    public LiveData<Map<String, List<YouTubeVideo>>> getLatestChannelList() {
+        if(latestChannelList == null) {
+            Log.v(TAG, "getLatestChannelList NULL");
+            latestChannelList = new MutableLiveData<>();
+            popular();
+        }
+        return latestChannelList;
+    }
 
     public LiveData<Map<String, List<YouTubeVideo>>> getEntertainChannelList() {
         if(entertainChannelList == null) {
@@ -97,6 +108,106 @@ public class YoutubeViewModel extends ViewModel {
 //            playlist(recommend_playlistId_url);
         }
         return recommendedChannelList;
+    }
+
+    public void popular(){
+        Map<String, List<YouTubeVideo>> channel =
+                getLatestChannelList().getValue() == null ? new HashMap<>() : getLatestChannelList().getValue();
+
+        networkDataModel.videoPopular()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(response -> response.code() == 200)
+                .subscribe(new DisposableObserver<Response<VideoResponse>>() {
+                    @Override
+                    public void onNext(Response<VideoResponse> videoResponse) {
+                        List<YouTubeVideo> yt = new ArrayList<>();
+                        for (VideoResponse.Items item : videoResponse.body().getItems()){
+                            yt.add(
+                                    new YouTubeVideo(
+                                            item.getId(),
+                                            item.getSnippet().getTitle(),
+                                            item.getSnippet().getChannelTitle(),
+                                            item.getStatistics().getViewCount(),
+                                            item.getSnippet().getPublishedAt(),
+                                            item.getContentDetails().getDuration()
+                                    ));
+                        }
+                        Log.d("YoutubeViewModel", "onNext :" + yt.size());
+                        channel.put("Trending today", yt);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete : Latest Popular");
+                        searchLatestWeek(channel);
+                    }
+                });
+    }
+
+    public void searchLatestWeek(Map<String, List<YouTubeVideo>> channel){
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        Date date = new Date();
+        String publishAfter = format.format(new Date(date.getTime() - 2592000000L));
+        String publishBefore = format.format(new Date(date.getTime() - 604800000L));
+
+        networkDataModel.searchLatestWeek(publishAfter, publishBefore)
+                .flatMap(new Function<Response<SearchResponse>, Observable<String>>() {
+                    @Override
+                    public Observable<String> apply(Response<SearchResponse> searchResponse) throws Exception {
+                        List<SearchResponse.Items> items = searchResponse.body().getItems();
+                        String multi_id = "";
+                        for (SearchResponse.Items i : items){
+                            multi_id = multi_id + i.getId().getVideoId() + ",";
+                        }
+                        return Observable.just(multi_id);
+                    }
+                })
+                .flatMap(new Function<String, ObservableSource<Response<VideoResponse>>>() {
+                    @Override
+                    public ObservableSource<Response<VideoResponse>> apply(String s) throws Exception {
+                        return networkDataModel.videoDetail(s);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(response -> response.code() == 200)
+                .subscribe(new DisposableObserver<Response<VideoResponse>>() {
+                    @Override
+                    public void onNext(Response<VideoResponse> videoResponse) {
+                        List<YouTubeVideo> yt = new ArrayList<>();
+                        for (VideoResponse.Items item : videoResponse.body().getItems()){
+                            yt.add(
+                                    new YouTubeVideo(
+                                            item.getId(),
+                                            item.getSnippet().getTitle(),
+                                            item.getSnippet().getChannelTitle(),
+                                            item.getStatistics().getViewCount(),
+                                            item.getSnippet().getPublishedAt(),
+                                            item.getContentDetails().getDuration()
+                                    ));
+                        }
+                        Log.d("YoutubeViewModel", "onNext :" + yt.size());
+                        channel.put("Trending this week", yt);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete : Latest Week " + channel.size());
+                        latestChannelList.setValue(channel);
+                    }
+                });
     }
 
     public void searchChannel(String channelId, YoutubeFragment.TabCategory category){
@@ -159,15 +270,15 @@ public class YoutubeViewModel extends ViewModel {
                     @Override
                     public void onNext(Response<VideoResponse> videoResponse) {
                         List<YouTubeVideo> yt = new ArrayList<>();
-                        for (int i = 0;i < videoResponse.body().getItems().size();i++){
+                        for (VideoResponse.Items item : videoResponse.body().getItems()){
                             yt.add(
                                     new YouTubeVideo(
-                                            videoResponse.body().getItems().get(i).getId(),
-                                            videoResponse.body().getItems().get(i).getSnippet().getTitle(),
-                                            videoResponse.body().getItems().get(i).getSnippet().getChannelTitle(),
-                                            videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
-                                            videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
-                                            videoResponse.body().getItems().get(i).getContentDetails().getDuration()
+                                            item.getId(),
+                                            item.getSnippet().getTitle(),
+                                            item.getSnippet().getChannelTitle(),
+                                            item.getStatistics().getViewCount(),
+                                            item.getSnippet().getPublishedAt(),
+                                            item.getContentDetails().getDuration()
                                     ));
                         }
                         Log.d(TAG + "SearchChannel", "onNext :" + channelTitle[0] + yt.size());
@@ -246,15 +357,15 @@ public class YoutubeViewModel extends ViewModel {
                     @Override
                     public void onNext(Response<VideoResponse> videoResponse) {
                         List<YouTubeVideo> yt = new ArrayList<>();
-                        for (int i = 0;i < videoResponse.body().getItems().size();i++){
+                        for (VideoResponse.Items item : videoResponse.body().getItems()){
                             yt.add(
                                     new YouTubeVideo(
-                                            videoResponse.body().getItems().get(i).getId(),
-                                            videoResponse.body().getItems().get(i).getSnippet().getTitle(),
-                                            videoResponse.body().getItems().get(i).getSnippet().getChannelTitle(),
-                                            videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
-                                            videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
-                                            videoResponse.body().getItems().get(i).getContentDetails().getDuration()
+                                            item.getId(),
+                                            item.getSnippet().getTitle(),
+                                            item.getSnippet().getChannelTitle(),
+                                            item.getStatistics().getViewCount(),
+                                            item.getSnippet().getPublishedAt(),
+                                            item.getContentDetails().getDuration()
                                     ));
                         }
                         Log.d("YoutubeViewModel", "onNext :" + channelTitle[0] + yt.size());
