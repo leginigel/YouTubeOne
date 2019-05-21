@@ -37,7 +37,6 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
     private YouTubePlayer youTubePlayer;
 
     private ImageView searchIcon, homeIcon, subIcon, folderIcon, settingIcon;
-    private ViewGroup leftNav, rightPage;
     private View playerBox, playerControls;
 
     public enum PageCategory {
@@ -73,25 +72,21 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
         playerControls.setVisibility(View.INVISIBLE);
         playerBox = findViewById(R.id.fragment_youtube_player);
         playerBox.setVisibility(View.INVISIBLE);
-        playerBox.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
-                    Log.d("onKey","KEYCODE_DPAD_DOWN");
-                    playerControls.setVisibility(View.VISIBLE);
-                    playerControls.requestFocus();
-                    playerControlsFragment.showTime();
-                    return true;
-                }
-                return false;
+        playerBox.setOnKeyListener((v, keyCode, event) -> {
+            if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+                Log.d("onKey","KEYCODE_DPAD_DOWN");
+                playerControls.setVisibility(View.VISIBLE);
+                playerControls.requestFocus();
+                playerControlsFragment.showTime();
+                return true;
             }
+            return false;
         });
 
         mPageCategory = PageCategory.Home;
 
-        leftNav = findViewById(R.id.left_nav);
+        ViewGroup leftNav = findViewById(R.id.left_nav);
         leftNav.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-        rightPage = findViewById(R.id.container_home);
 
         searchIcon = findViewById(R.id.search_btn);
         homeIcon = findViewById(R.id.home_btn);
@@ -99,68 +94,37 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
         folderIcon = findViewById(R.id.folder_btn);
         settingIcon = findViewById(R.id.setting_btn);
 
-//        leftNav.setOnFocusChangeListener((v, hasFocus) -> {
-//            if(hasFocus){
-//                Log.d("LeftNav","hasFocus");
-//                switch (mPageCategory){
-//                    case Home:homeIcon.requestFocus();break;
-//                }
-//            }
-//            else{
-//                Log.d("LeftNav","!hasFocus");
-//            }
-//
-//        });
+        homeIcon.setSelected(true);
+        homeIcon.getDrawable().setColorFilter(getResources().getColor(R.color.button_selecting), PorterDuff.Mode.SRC_IN);
 
         setIconFocusListener();
         setIconOnKeyListener();
 
-//        homeIcon.setOnFocusChangeListener((v, hasFocus) -> {
-//            if(hasFocus) {
-//                Log.d("Home", "Icon on Focus");
-//                getSupportFragmentManager().beginTransaction().show(youtubeFragment).commitNow();
-//            }
-////            else
-////                getSupportFragmentManager().beginTransaction().hide(youtubeRowFragment).commitNow();
-//        });
-//
-//        searchIcon.setOnFocusChangeListener((v, hasFocus) -> {
-//            if(hasFocus) {
-//                Log.d("Search", "Icon on Focus");
-//                getSupportFragmentManager().beginTransaction().show(searchFragment).commitNow();
-//            }
-////            else
-////                getSupportFragmentManager().beginTransaction().hide(searchFragment).commitNow();
-//        });
         checkYouTubeApi();
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (KeyEvent.KEYCODE_DPAD_DOWN == keyCode){
-            getSupportFragmentManager().findFragmentById(R.id.container_row);
-//            return true;
-        }
         return super.onKeyDown(keyCode, event);
     }
 
     private void setIconFocus(ImageView image, PageCategory category){
         image.setOnFocusChangeListener((v, hasFocus)->{
-            Drawable drawble = ((ImageView) v).getDrawable();
+            Drawable drawable = ((ImageView) v).getDrawable();
             if(hasFocus) {
                 Log.d(TAG, "Icon on Focus " + category);
                 v.setSelected(false);
                 this.mPageCategory = category;
-                drawble.setColorFilter(getResources().getColor(R.color.left_nav), PorterDuff.Mode.MULTIPLY);
-                ((ImageView) v).setImageDrawable(drawble);
+                drawable.setColorFilter(getResources().getColor(R.color.left_nav), PorterDuff.Mode.MULTIPLY);
+                ((ImageView) v).setImageDrawable(drawable);
                 getSupportFragmentManager().beginTransaction().replace(R.id.container_home, getPageFragment(category)).commitNow();
             }
             else{
                 if(category == this.mPageCategory && v.isSelected())
-                    drawble.setColorFilter(getResources().getColor(R.color.button_selecting), PorterDuff.Mode.SRC_IN);
+                    drawable.setColorFilter(getResources().getColor(R.color.button_selecting), PorterDuff.Mode.SRC_IN);
                 else
-                    drawble.setColorFilter(getResources().getColor(R.color.button), PorterDuff.Mode.SRC_IN);
-                ((ImageView) v).setImageDrawable(drawble);
+                    drawable.setColorFilter(getResources().getColor(R.color.button), PorterDuff.Mode.SRC_IN);
+                ((ImageView) v).setImageDrawable(drawable);
             }
         });
     }

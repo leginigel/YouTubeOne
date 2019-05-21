@@ -28,7 +28,7 @@ import jacklin.com.youtubefxc.util.Utils;
 public class YouTubeCardPresenter extends Presenter {
     private Context mContext;
     private YoutubeFragment mFragment;
-    private ViewGroup mLeftNav;
+    private ViewGroup mLeftNav, mTopNav;
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup) {
@@ -37,11 +37,9 @@ public class YouTubeCardPresenter extends Presenter {
         mFragment = (YoutubeFragment) ((FragmentActivity) mContext)
                 .getSupportFragmentManager().findFragmentById(R.id.container_home);
         mLeftNav = ((FragmentActivity) mContext).findViewById(R.id.left_nav);
+        mTopNav = ((FragmentActivity) mContext).findViewById(R.id.top_nav);
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.card_image, viewGroup, false);
-
-        ImageCardView imageCardView = view.findViewById(R.id.img_card_view);
-//        ImageCardView imageCardView = new ImageCardView(mContext);
 
 //        CustomCardView customCardView = new CustomCardView(mContext);
 //        customCardView.setNextFocusLeftId(R.id.home_btn);
@@ -69,6 +67,7 @@ public class YouTubeCardPresenter extends Presenter {
         CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
         YouTubeVideo youTubeVideo = (YouTubeVideo) o;
 
+        // Set RowFragment Focus Navigation
         switch (mFragment.getTabCategory()){
             case Recommended:
                 cardViewHolder.view.setNextFocusUpId(R.id.recommend_btn);
@@ -83,21 +82,29 @@ public class YouTubeCardPresenter extends Presenter {
                 cardViewHolder.view.setNextFocusUpId(R.id.gaming_btn);
                 break;
         }
-
         cardViewHolder.view.setOnKeyListener((v, keyCode, event) -> {
-
             if(event.getAction() == KeyEvent.ACTION_DOWN){
-                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
-                    Log.d("Onkey", "ViewHolder Down");
+                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN)
                     mLeftNav.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-                }
                 else {
                     mLeftNav.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+                }
+                if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT)
+                    mTopNav.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                else {
+                    mTopNav.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+                }
+                if(event.getAction() == KeyEvent.ACTION_DOWN){
+                    if(keyCode == KeyEvent.KEYCODE_BACK){
+                        mTopNav.requestFocus();
+                        return true;
+                    }
                 }
             }
             return false;
         });
 
+        // Set TimeStamp Value
         TextView timeStamp = cardViewHolder.mTimeStamp;
         if(youTubeVideo.getDuration() == null){
             timeStamp.setBackgroundColor(Color.TRANSPARENT);
@@ -107,11 +114,8 @@ public class YouTubeCardPresenter extends Presenter {
             timeStamp.setText(Utils.DurationConverter(youTubeVideo.getDuration()));
         }
 
+        // Load ImageCardView
         ImageCardView imgCard = cardViewHolder.mImageCardView;
-//        TextView title = cardViewHolder.mTitle;
-//        TextView content = cardViewHolder.mContent;
-//        CustomCardView imgCard = cardViewHolder.mImageCardView;
-
         if(youTubeVideo.getId() != null){
             Log.v("YouTubeCardPresenter" , "!cardViewHolder.isLoading");
             cardViewHolder.setCardInfo();
@@ -120,7 +124,6 @@ public class YouTubeCardPresenter extends Presenter {
                     + Utils.CountConverter(youTubeVideo.getNumber_views()) +" views ‧ "
                     + Utils.TimeConverter(youTubeVideo.getTime()) + "ago");
         }
-
         Glide.with(mContext)
                 .asBitmap()
 //                .placeholder(mContext.getResources().getDrawable(R.drawable.ic_folder_24dp))
@@ -142,24 +145,21 @@ public class YouTubeCardPresenter extends Presenter {
         private TextView mTitle;
         private TextView mContent;
 //        private CustomCardView mImageCardView;
-        public CardViewHolder(View view) {
+        private CardViewHolder(View view) {
             super(view);
 //            mImageCardView = (CustomCardView) view;
             view.setFocusable(true);
             view.setFocusableInTouchMode(true);
             view.setClickable(true);
             view.setNextFocusLeftId(R.id.home_btn);
-//            view.setNextFocusDownId(R.id.container_row);
-            mImageCardView = (ImageCardView) view.findViewById(R.id.img_card_view);
+
+            mImageCardView = view.findViewById(R.id.img_card_view);
             mTimeStamp = view.findViewById(R.id.img_card_time_stamp);
-            mTitle = (TextView) mImageCardView.findViewById(R.id.title_text);
-            mContent = (TextView) mImageCardView.findViewById(R.id.content_text);
+            mTitle = mImageCardView.findViewById(R.id.title_text);
+            mContent = mImageCardView.findViewById(R.id.content_text);
 
             mImageCardView.setCardType(ImageCardView.CARD_TYPE_INFO_UNDER);
             mImageCardView.setInfoVisibility(BaseCardView.CARD_REGION_VISIBLE_ACTIVATED);
-//            mImageCardView.setNextFocusLeftId(R.id.home_btn);
-//            mImageCardView.setFocusable(true);
-//            mImageCardView.setFocusableInTouchMode(true);
             mImageCardView.setMainImageDimensions(500, 281);
             mImageCardView.setInfoAreaBackgroundColor(mContext.getResources().getColor(R.color.background));
             mImageCardView.setBackgroundColor(mContext.getResources().getColor(R.color.card_loading));
@@ -169,7 +169,6 @@ public class YouTubeCardPresenter extends Presenter {
 
         private void setLoadingCardInfo(){
             Log.v("YouTubeCardPresenter" , "setLoadingCardInfo");
-//            ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             mTitle.setMaxLines(2);
             mTitle.setTextColor(mContext.getResources().getColor(R.color.card_loading));
             mTitle.setBackground(mContext.getDrawable(R.drawable.card_text_bg));
@@ -182,12 +181,11 @@ public class YouTubeCardPresenter extends Presenter {
             mContent.setLayoutParams(params);
 
             mContent.setBackground(mContext.getDrawable(R.drawable.card_text_bg));
-//            mContent.setTextSize(mTitle.getTextSize());
             mContent.setTextColor(mContext.getResources().getColor(R.color.card_loading));
 
         }
 
-        public void setCardInfo(){
+        private void setCardInfo(){
             Log.v("YouTubeCardPresenter" , "setCardInfo");
             mTitle.setTextSize(20);
             mTitle.setTextColor(Color.WHITE);

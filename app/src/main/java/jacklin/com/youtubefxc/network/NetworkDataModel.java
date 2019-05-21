@@ -5,7 +5,7 @@ import android.util.Log;
 import java.util.List;
 
 import io.reactivex.Observable;
-import jacklin.com.youtubefxc.api.PlaylistItems;
+import jacklin.com.youtubefxc.api.PlaylistItemsResponse;
 import jacklin.com.youtubefxc.api.SearchResponse;
 import jacklin.com.youtubefxc.api.VideoResponse;
 import jacklin.com.youtubefxc.api.YoutubeService;
@@ -45,7 +45,7 @@ public class NetworkDataModel {
         return youtubeService.videoDetail(id);
     }
 
-    public Observable<Response<PlaylistItems>> playlistItems(String playlistId){
+    public Observable<Response<PlaylistItemsResponse>> playlistItems(String playlistId){
         return youtubeService.playlistItems(playlistId);
     }
 

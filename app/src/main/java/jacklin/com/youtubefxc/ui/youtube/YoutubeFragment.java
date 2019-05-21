@@ -43,6 +43,7 @@ public class YoutubeFragment extends Fragment {
     LatestFragment latestFragment;
 
     private TabCategory mTab;
+    private ViewGroup mContainerRow, mLeftNav;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,8 +67,12 @@ public class YoutubeFragment extends Fragment {
         entertain = view.findViewById(R.id.entertainment_btn);
         gaming = view.findViewById(R.id.gaming_btn);
 
+        mContainerRow = view.findViewById(R.id.container_row);
+        mLeftNav = getActivity().findViewById(R.id.left_nav);
+
         mTab = TabCategory.Recommended;
         recommend.setSelected(true);
+        recommend.setTextColor(getActivity().getResources().getColor(R.color.button_selecting));
 
         setButtonFocusListener(recommend, recommendedFragment, TabCategory.Recommended);
         setButtonFocusListener(latest, latestFragment, TabCategory.Latest);
@@ -83,7 +88,7 @@ public class YoutubeFragment extends Fragment {
         return view;
     }
 
-        @Override
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Log.i(TAG, "onActivityCreated");
@@ -94,12 +99,14 @@ public class YoutubeFragment extends Fragment {
         button.setOnKeyListener((v, keyCode, event) -> {
             if(event.getAction() == KeyEvent.ACTION_DOWN) {
                 if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                    mContainerRow.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
                     if(getTabCategory() == category) {
                         button.setSelected(true);
                     }
                 }
                 if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT && category == TabCategory.Recommended) {
                     button.setSelected(true);
+                    mLeftNav.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
                 }
             }
             return false;
@@ -115,6 +122,8 @@ public class YoutubeFragment extends Fragment {
                     setTabCategory(category);
                 fm.beginTransaction()
                         .replace(R.id.container_row, fragment).commit();
+                mContainerRow.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                mLeftNav.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
             }
             else{
                 button.setTextColor(getActivity().getResources().getColor(R.color.btn_text));
@@ -130,21 +139,21 @@ public class YoutubeFragment extends Fragment {
 
     public void setTabCategory(TabCategory category){
         this.mTab = category;
-        switch (category){
-            case Recommended:
-                Log.d(TAG, "Fragment setTabCategory Recommended");
+//        switch (category){
+//            case Recommended:
+//                Log.d(TAG, "Fragment setTabCategory Recommended");
 //                setRows(mRecommendedChannel);
-                break;
-            case Latest:
+//                break;
+//            case Latest:
 //                setRows(mLatestChannel);
-                break;
-            case Music:
-                Log.d(TAG, "Fragment setTabCategory Music");
+//                break;
+//            case Music:
+//                Log.d(TAG, "Fragment setTabCategory Music");
 //                setRows(mMusicChannel);
-                break;
-            case Entertainment:break;
-            case Gaming:break;
-        }
+//                break;
+//            case Entertainment:break;
+//            case Gaming:break;
+//        }
     }
 
     public TabCategory getTabCategory() {

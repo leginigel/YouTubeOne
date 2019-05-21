@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Utils {
 
-    public static final String DurationConverter(String duration) {
+    public static String DurationConverter(String duration) {
         String hour = "", minute = "", second = "";
         int hasH, hasM, hasS;
         hasH = duration.indexOf('H');
@@ -62,7 +62,7 @@ public class Utils {
         return hour + minute + second;
     }
 
-    public static final String CountConverter(int count) {
+    public static String CountConverter(int count) {
         DecimalFormat df = new DecimalFormat("#.#");
         float fCount;
         if(count > 1000000000) {
@@ -85,7 +85,7 @@ public class Utils {
         }
     }
 
-    public static final String TimeConverter(String time) {
+    public static String TimeConverter(String time) {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         String convTime = null;

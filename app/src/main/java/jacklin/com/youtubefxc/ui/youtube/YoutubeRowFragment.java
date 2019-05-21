@@ -77,9 +77,6 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         mListRowPresenter.setSelectEffectEnabled(false);
         mRowsAdapter = new ArrayObjectAdapter(mListRowPresenter);
 
-        // FIXME: 2019/5/16 Focus broken with OnItemViewClickedListener
-        mContainer = container;
-//container.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         setRows(null);
 
         youTubePlayerFragment = (YouTubePlayerSupportFragment) getActivity()
@@ -95,12 +92,11 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-//    @Override
-//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//        Log.i(TAG, "onActivityCreated");
-//        mViewModel = ViewModelProviders.of(getActivity()).get(YoutubeViewModel.class);
-//    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.i(TAG, "onActivityCreated");
+    }
 
     public void setRows(Map<String, List<YouTubeVideo>> channelList){
 
@@ -148,23 +144,15 @@ public class YoutubeRowFragment extends RowsSupportFragment {
                                    RowPresenter.ViewHolder viewHolder1, Row row) {
             YouTubeCardPresenter.CardViewHolder cardViewHolder = (YouTubeCardPresenter.CardViewHolder) viewHolder;
             if(o instanceof YouTubeVideo) {
-
+                // Reset the ImageCardView Info Color
                 if(imgCard != null){
                     imgCard.setInfoAreaBackgroundColor(getResources().getColor(R.color.background));
                     ((TextView) imgCard.findViewById(R.id.title_text))
                             .setTextColor(Color.WHITE);
                 }
-//                Log.d(TAG, "Selected");
-//                imgCard = (ImageCardView) viewHolder.view;
-//                ImageView mainImage = cardViewHolder.view.findViewById(R.id.main_image);
-//                mainImage.animate().scaleX(1.2f).scaleY(1.2f);
 
-                imgCard = (ImageCardView) cardViewHolder.getImageCardView();
-
-                if(mRowsAdapter.indexOf(row) == mRowsAdapter.size() -1) {
-//                mContainer.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-                    imgCard.setNextFocusDownId(R.id.img_card_view);
-                }
+                // Set the Selected Color
+                imgCard = cardViewHolder.getImageCardView();
                 imgCard.setInfoAreaBackgroundColor(Color.WHITE);
                 ((TextView) imgCard.findViewById(R.id.title_text))
                         .setTextColor(getResources().getColor(R.color.background));
@@ -175,6 +163,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 
     private final class YouTubeCardClickedListener implements OnItemViewClickedListener {
 
+        // TODO: 2019/5/21 The Video Player Should Change
         private YouTubeVideo video = null;
 
         @Override
@@ -194,6 +183,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
         }
     }
 
+    // All Needs to Override this Method
     public YoutubeFragment.TabCategory getTabCategory() {
         return null;
     }
