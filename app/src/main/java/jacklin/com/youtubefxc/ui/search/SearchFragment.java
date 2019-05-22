@@ -45,6 +45,8 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.search_fragment, container, false);
+//        view.findViewById(R.id.cardViewABC1).requestFocus();
         return inflater.inflate(R.layout.search_fragment, container, false);
     }
 
