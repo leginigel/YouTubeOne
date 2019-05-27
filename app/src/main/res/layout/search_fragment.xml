@@ -28,8 +28,6 @@
         android:id="@+id/view"
         android:layout_width="260dp"
         android:layout_height="100dp"
-        android:background="@drawable/btn_bg"
-        android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
         app:layout_constraintStart_toStartOf="@id/search_bar"
@@ -37,7 +35,7 @@
 
     <FrameLayout
         android:id="@+id/keyboard"
-        android:layout_width="245dp"
+        android:layout_width="265dp"
         android:layout_height="0dp"
         app:layout_constraintStart_toEndOf="@id/view"
         app:layout_constraintTop_toBottomOf="@id/search_bar" />
@@ -831,7 +829,7 @@
         android:id="@+id/cardViewSpace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
         android:clickable="true"
         android:descendantFocusability="afterDescendants"
         android:elevation="0dp"
@@ -948,6 +946,7 @@
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
         android:clickable="true"
         android:descendantFocusability="afterDescendants"
         android:elevation="0dp"
@@ -957,7 +956,7 @@
         app:cardBackgroundColor="@color/background"
         app:cardElevation="0dp"
         app:layout_constraintStart_toEndOf="@+id/keyboard"
-        app:layout_constraintTop_toTopOf="@+id/view">
+        app:layout_constraintTop_toTopOf="@+id/keyboard">
 
         <ImageView
             android:id="@+id/imageView"

@@ -30,6 +30,27 @@ public class SearchViewModel extends ViewModel {
 
     private NetworkDataModel networkDataModel = new NetworkDataModel();
 
+    private MutableLiveData<String> queryString = new MutableLiveData<>();
+
+    public LiveData<String> getQueryString(){
+
+        return queryString;
+    }
+
+    public void setQueryString(String query){
+        if(query.equals("")){
+            queryString.setValue("");
+            return;
+        }
+        String now = queryString.getValue();
+        if(now != null){
+            queryString.setValue(now + query);
+
+        }
+        else
+            queryString.setValue(query);
+    }
+
     public LiveData<List<YouTubeVideo>> getVideoList(){
         if(videos == null){
             videos = new MutableLiveData<>();

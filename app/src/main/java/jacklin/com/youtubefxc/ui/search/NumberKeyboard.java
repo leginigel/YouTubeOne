@@ -1,8 +1,8 @@
 package jacklin.com.youtubefxc.ui.search;
 
+
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
@@ -19,17 +19,17 @@ import jacklin.com.youtubefxc.viewmodel.SearchViewModel;
  * A simple {@link Fragment} subclass.
  * ViewModel {@link SearchViewModel}
  */
-public class AlphabetKeyborad extends Fragment {
+public class NumberKeyboard extends Fragment {
 
-    public static AlphabetKeyborad newInstance(){
-        return new AlphabetKeyborad();
+    public static NumberKeyboard newInstance(){
+        return new NumberKeyboard();
     }
     private SearchViewModel mViewModel;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.alphabet_keyboard, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.number_keyboard, container, false);
         ViewGroup viewGroup = (ViewGroup) view;
         for (int i = 0;i < viewGroup.getChildCount();i++) {
             CardView cardView = (CardView) viewGroup.getChildAt(i);
@@ -42,7 +42,7 @@ public class AlphabetKeyborad extends Fragment {
                     cardView.setCardElevation(0);
                 }
             });
-            textView.setOnClickListener(v -> mViewModel.setQueryString(((String) ((TextView) v).getText()).toLowerCase()));
+            textView.setOnClickListener(v -> mViewModel.setQueryString((String) ((TextView) v).getText()));
         }
         return view;
     }
