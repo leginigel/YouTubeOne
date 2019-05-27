@@ -24,6 +24,7 @@ import jacklin.com.youtubefxc.network.NetworkDataModel;
 import retrofit2.Response;
 
 public class SearchViewModel extends ViewModel {
+    private static final String TAG = SearchViewModel.class.getSimpleName();
     private CompositeDisposable disposable;
 
     private MutableLiveData<List<YouTubeVideo>> videos;
@@ -33,7 +34,6 @@ public class SearchViewModel extends ViewModel {
     private MutableLiveData<String> queryString = new MutableLiveData<>();
 
     public LiveData<String> getQueryString(){
-
         return queryString;
     }
 
@@ -53,11 +53,13 @@ public class SearchViewModel extends ViewModel {
 
     public LiveData<List<YouTubeVideo>> getVideoList(){
         if(videos == null){
+            Log.v(TAG, "getVideoList NULL");
             videos = new MutableLiveData<>();
             List<YouTubeVideo> list = new ArrayList<>();
             for (int i = 0;i < 3;i++)
                 list.add(new YouTubeVideo("id","test", "test", 0, "now", null));
             videos.setValue(list);
+
         }
         return videos;
     }

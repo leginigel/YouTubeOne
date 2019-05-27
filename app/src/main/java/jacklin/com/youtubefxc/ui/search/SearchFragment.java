@@ -41,10 +41,12 @@ public class SearchFragment extends Fragment {
     TextView searchBar;
     CardView searchIcon, clearIcon, spaceIcon, backspaceIcon, shiftIcon;
     View suggest, view;
-    FrameLayout mKeyboard;
+    FrameLayout mKeyboard, mRow;
     AlphabetKeyborad mAlphabet;
     NumberKeyboard mNumber;
     Keyboard mType;
+
+    SearchRowFragment rowFragment;
 
     public enum Keyboard{
         Alphabet, Number
@@ -58,11 +60,13 @@ public class SearchFragment extends Fragment {
 
         mAlphabet = AlphabetKeyborad.newInstance();
         mNumber = NumberKeyboard.newInstance();
+        rowFragment = SearchRowFragment.newInstance();
         if(savedInstanceState == null) {
             fm = getFragmentManager();
-            FragmentTransaction fmts = fm.beginTransaction();
-            fmts.replace(R.id.keyboard, mAlphabet).commit();
+            fm.beginTransaction().replace(R.id.keyboard, mAlphabet).commit();
             mType = Keyboard.Alphabet;
+
+            fm.beginTransaction().replace(R.id.search_row, rowFragment).commit();
         }
 
         spaceIcon.getChildAt(0).setOnClickListener(v -> {
@@ -71,7 +75,7 @@ public class SearchFragment extends Fragment {
         });
         clearIcon.getChildAt(0).setOnClickListener(v -> clearSearchBar());
         shiftIcon.getChildAt(0).setOnClickListener(v -> switchKeyboard());
-        searchIcon.getChildAt(0).setOnClickListener(v -> querySearchResult());
+        searchIcon.getChildAt(0).setOnClickListener(v -> querySearchResult(searchBar.getText().toString()));
         backspaceIcon.getChildAt(0).setOnClickListener(v -> clearSearchBar());
 
         setOnFocusListener();
@@ -81,6 +85,7 @@ public class SearchFragment extends Fragment {
 
     private void findView(){
         mKeyboard = view.findViewById(R.id.keyboard);
+        mRow = view.findViewById(R.id.search_row);
         suggest = view.findViewById(R.id.view);
         searchBar = view.findViewById(R.id.search_bar);
         searchIcon = view.findViewById(R.id.cardViewSearch);
@@ -92,7 +97,7 @@ public class SearchFragment extends Fragment {
 
     private void setOnFocusListener(){
         ViewGroup viewGroup = (ViewGroup) view;
-        for (int i=3;i < viewGroup.getChildCount() - 1;i++){
+        for (int i = 4;i < viewGroup.getChildCount() - 1;i++){
             CardView cardView = (CardView) viewGroup.getChildAt(i);
             TextView textView = (TextView) cardView.getChildAt(0);
             textView.setOnFocusChangeListener((v, hasFocus)->{
@@ -121,8 +126,8 @@ public class SearchFragment extends Fragment {
         }
     }
 
-    private void querySearchResult(){
-
+    private void querySearchResult(String query){
+        mViewModel.searchRx("nba");
     }
 
     private void clearSearchBar(){
