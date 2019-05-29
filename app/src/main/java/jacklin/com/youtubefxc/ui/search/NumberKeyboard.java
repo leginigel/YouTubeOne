@@ -42,7 +42,8 @@ public class NumberKeyboard extends Fragment {
                     cardView.setCardElevation(0);
                 }
             });
-            textView.setOnClickListener(v -> mViewModel.setQueryString((String) ((TextView) v).getText()));
+            textView.setOnClickListener(v -> mViewModel
+                    .setQueryString((String) ((TextView) v).getText(), false));
         }
         return view;
     }

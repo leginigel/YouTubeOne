@@ -36,9 +36,8 @@ public class SearchFragment extends Fragment {
     private static final String TAG = SearchFragment.class.getSimpleName();
     private SearchViewModel mViewModel;
 //    private List<YouTubeVideo> mVideoList = new ArrayList<>();
-    private ArrayObjectAdapter mCardsAdapter;
-    private ArrayObjectAdapter mRowsAdapter;
     private RecyclerView recyclerView;
+    private SuggestListAdapter mSuggestListAdapter;
 
     public static SearchFragment newInstance() {
         return new SearchFragment();
@@ -50,6 +49,7 @@ public class SearchFragment extends Fragment {
     FrameLayout mKeyboard, mRow;
     AlphabetKeyborad mAlphabet;
     NumberKeyboard mNumber;
+    SpinnerFragment mSpinner;
     Keyboard mType;
 
     SearchRowFragment rowFragment;
@@ -66,6 +66,7 @@ public class SearchFragment extends Fragment {
 
         mAlphabet = AlphabetKeyborad.newInstance();
         mNumber = NumberKeyboard.newInstance();
+        mSpinner = SpinnerFragment.newInstance();
         rowFragment = SearchRowFragment.newInstance();
         if(savedInstanceState == null) {
             fm = getFragmentManager();
@@ -75,19 +76,19 @@ public class SearchFragment extends Fragment {
             fm.beginTransaction().replace(R.id.search_row, rowFragment).commit();
         }
 
-        SuggestListAdapter suggestListAdapter = new SuggestListAdapter();
+        mSuggestListAdapter = new SuggestListAdapter();
         recyclerView.setLayoutManager(
                 new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(suggestListAdapter);
+        recyclerView.setAdapter(mSuggestListAdapter);
 
         spaceIcon.getChildAt(0).setOnClickListener(v -> {
             if(searchBar.getText() != "Search")
-                mViewModel.setQueryString(" ");
+                mViewModel.setQueryString(" ", false);
         });
         clearIcon.getChildAt(0).setOnClickListener(v -> clearSearchBar());
         shiftIcon.getChildAt(0).setOnClickListener(v -> switchKeyboard());
         searchIcon.getChildAt(0).setOnClickListener(v -> querySearchResult(searchBar.getText().toString()));
-        backspaceIcon.getChildAt(0).setOnClickListener(v -> searchGoogleSuggestion("aladdin"));
+        backspaceIcon.getChildAt(0).setOnClickListener(v -> deleteBarChar());
 
         setOnFocusListener();
 
@@ -140,15 +141,25 @@ public class SearchFragment extends Fragment {
 
     private void querySearchResult(String query){
         Log.d(TAG,"querySearchResult");
-        mViewModel.searchRx("nba");
+        if(!query.equals("Search")) {
+            mViewModel.searchRx(query);
+            mViewModel.setIsLoading(true);
+            mSuggestListAdapter.resize(5);
+        }
     }
 
     private void searchGoogleSuggestion(String query){
         mViewModel.searchSuggestion(query);
     }
 
+    private void deleteBarChar(){
+        mViewModel.setQueryString("", true);
+    }
+
     private void clearSearchBar(){
-        mViewModel.setQueryString("");
+        mViewModel.setQueryString("clear", true);
+        mSuggestListAdapter.resize(10);
+        rowFragment.clear();
     }
 
     @Override
@@ -163,8 +174,19 @@ public class SearchFragment extends Fragment {
             else
             searchBar.setText(query);
         });
-
-//        mVideoList = mViewModel.getVideoList().getValue();
+        mViewModel.getSuggestions().observe(getActivity(), suggestions->{
+//            Log.d("getSuggestion", suggestions.get(0));
+            mSuggestListAdapter.refresh(suggestions);
+        });
+        mViewModel.getIsLoading().observe(getActivity(), isLoading->{
+            if(isLoading){
+                fm.beginTransaction().replace(R.id.search_row, mSpinner).commit();
+            }
+            else{
+                fm.beginTransaction().replace(R.id.search_row, rowFragment).commit();
+                mRow.requestFocus();
+            }
+        });
     }
 
 }

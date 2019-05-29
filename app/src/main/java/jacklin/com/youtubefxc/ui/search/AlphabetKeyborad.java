@@ -42,7 +42,8 @@ public class AlphabetKeyborad extends Fragment {
                     cardView.setCardElevation(0);
                 }
             });
-            textView.setOnClickListener(v -> mViewModel.setQueryString(((String) ((TextView) v).getText()).toLowerCase()));
+            textView.setOnClickListener(v -> mViewModel
+                    .setQueryString(((String) ((TextView) v).getText()).toLowerCase(), false));
         }
         return view;
     }

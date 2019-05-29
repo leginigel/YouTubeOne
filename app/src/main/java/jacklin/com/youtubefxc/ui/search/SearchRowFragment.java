@@ -69,4 +69,8 @@ public class SearchRowFragment extends YoutubeRowFragment {
         mRow = new ListRow(mCardsAdapter);
         mRowsAdapter.add(mRow);
     }
+
+    public void clear(){
+        mRowsAdapter.clear();
+    }
 }

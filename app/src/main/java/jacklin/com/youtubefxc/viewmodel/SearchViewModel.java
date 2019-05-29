@@ -35,22 +35,54 @@ public class SearchViewModel extends ViewModel {
 
     private MutableLiveData<String> queryString = new MutableLiveData<>();
 
+    private MutableLiveData<List<String>> suggestions = new MutableLiveData<>();
+
+    private MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
+
+    public void setIsLoading(boolean status) {
+        isLoading.postValue(status);
+    }
+
+    public LiveData<Boolean> getIsLoading(){
+        if(isLoading == null){
+            isLoading.postValue(false);
+        }
+        return isLoading;
+    }
+
+    public LiveData<List<String>> getSuggestions(){
+        return suggestions;
+    }
+
     public LiveData<String> getQueryString(){
         return queryString;
     }
 
-    public void setQueryString(String query){
-        if(query.equals("")){
-            queryString.setValue("");
-            return;
-        }
+    public void setQueryString(String query, boolean delete){
         String now = queryString.getValue();
-        if(now != null){
-            queryString.setValue(now + query);
 
+        if(delete) {
+            if(query.equals("clear")) {
+                queryString.setValue("");
+                return;
+            }
+            else if(query.equals("")){
+                String after = now.substring(0, now.length() - 1);
+                queryString.setValue(after);
+                if(now.length() == 1)
+                    return;
+            }
+            else{
+                queryString.setValue(query);
+            }
         }
-        else
-            queryString.setValue(query);
+        else {
+            if(now != null) {
+                queryString.setValue(now + query);
+            } else
+                queryString.setValue(query);
+        }
+        searchSuggestion(queryString.getValue());
     }
 
     public LiveData<List<YouTubeVideo>> getVideoList(){
@@ -62,10 +94,11 @@ public class SearchViewModel extends ViewModel {
     }
 
     public void searchSuggestion(String query){
+        List<String> temp = new ArrayList<>();
         networkDataModel.searchSuggestion(query)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-//                .filter(r-> r.code() == 200)
+                .filter(r-> r.code() == 200)
                 .subscribe(new DisposableObserver<Response<GoogleResponse>>() {
                     @Override
                     public void onNext(Response<GoogleResponse> googleResponseResponse) {
@@ -74,7 +107,8 @@ public class SearchViewModel extends ViewModel {
                                 = googleResponseResponse.body().getCompleteSuggestion();
                         for (CompleteSuggestion i : list){
                             String data = i.getSuggestion().getData();
-                            Log.d("data", data);
+                            Log.v("data", data);
+                            temp.add(data);
                         }
                     }
 
@@ -87,6 +121,7 @@ public class SearchViewModel extends ViewModel {
                     @Override
                     public void onComplete() {
                         Log.d("onComplete", "onComplete");
+                        suggestions.postValue(temp);
                     }
                 });
     }
@@ -150,6 +185,7 @@ public class SearchViewModel extends ViewModel {
                     @Override
                     public void onComplete() {
                         videos.setValue(ytv);
+                        isLoading.postValue(false);
                     }
                 });
 //    );
