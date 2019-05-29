@@ -5,6 +5,8 @@ import android.util.Log;
 import java.util.List;
 
 import io.reactivex.Observable;
+import jacklin.com.youtubefxc.api.GoogleResponse;
+import jacklin.com.youtubefxc.api.GoogleService;
 import jacklin.com.youtubefxc.api.PlaylistItemsResponse;
 import jacklin.com.youtubefxc.api.SearchResponse;
 import jacklin.com.youtubefxc.api.VideoResponse;
@@ -15,6 +17,7 @@ import retrofit2.Response;
 
 public class NetworkDataModel {
     private YoutubeService youtubeService = RetrofitManager.getInstance().getAPI();
+    private GoogleService googleService = RetrofitManager.getInstance().getGoogleAPI();
 
     public void searchVideo(String query, final onSearchDataReadyCallback callback){
         youtubeService.searchVideo(query)
@@ -59,5 +62,9 @@ public class NetworkDataModel {
 
     public Observable<Response<SearchResponse>> searchLatestWeek(String publishAfter, String publishBefore){
         return youtubeService.searchLatestWeek(publishAfter, publishBefore);
+    }
+
+    public Observable<Response<GoogleResponse>> searchSuggestion(String query){
+        return googleService.searchGoogle(query);
     }
 }

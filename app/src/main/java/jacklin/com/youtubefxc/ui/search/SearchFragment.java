@@ -9,6 +9,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,10 +33,12 @@ import jacklin.com.youtubefxc.viewmodel.SearchViewModel;
  */
 public class SearchFragment extends Fragment {
 
+    private static final String TAG = SearchFragment.class.getSimpleName();
     private SearchViewModel mViewModel;
-    private List<YouTubeVideo> mVideoList = new ArrayList<>();
+//    private List<YouTubeVideo> mVideoList = new ArrayList<>();
     private ArrayObjectAdapter mCardsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
+    private RecyclerView recyclerView;
 
     public static SearchFragment newInstance() {
         return new SearchFragment();
@@ -69,6 +75,11 @@ public class SearchFragment extends Fragment {
             fm.beginTransaction().replace(R.id.search_row, rowFragment).commit();
         }
 
+        SuggestListAdapter suggestListAdapter = new SuggestListAdapter();
+        recyclerView.setLayoutManager(
+                new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        recyclerView.setAdapter(suggestListAdapter);
+
         spaceIcon.getChildAt(0).setOnClickListener(v -> {
             if(searchBar.getText() != "Search")
                 mViewModel.setQueryString(" ");
@@ -76,7 +87,7 @@ public class SearchFragment extends Fragment {
         clearIcon.getChildAt(0).setOnClickListener(v -> clearSearchBar());
         shiftIcon.getChildAt(0).setOnClickListener(v -> switchKeyboard());
         searchIcon.getChildAt(0).setOnClickListener(v -> querySearchResult(searchBar.getText().toString()));
-        backspaceIcon.getChildAt(0).setOnClickListener(v -> clearSearchBar());
+        backspaceIcon.getChildAt(0).setOnClickListener(v -> searchGoogleSuggestion("aladdin"));
 
         setOnFocusListener();
 
@@ -86,6 +97,7 @@ public class SearchFragment extends Fragment {
     private void findView(){
         mKeyboard = view.findViewById(R.id.keyboard);
         mRow = view.findViewById(R.id.search_row);
+        recyclerView = view.findViewById(R.id.view);
         suggest = view.findViewById(R.id.view);
         searchBar = view.findViewById(R.id.search_bar);
         searchIcon = view.findViewById(R.id.cardViewSearch);
@@ -127,7 +139,12 @@ public class SearchFragment extends Fragment {
     }
 
     private void querySearchResult(String query){
+        Log.d(TAG,"querySearchResult");
         mViewModel.searchRx("nba");
+    }
+
+    private void searchGoogleSuggestion(String query){
+        mViewModel.searchSuggestion(query);
     }
 
     private void clearSearchBar(){
@@ -146,17 +163,8 @@ public class SearchFragment extends Fragment {
             else
             searchBar.setText(query);
         });
-//        mViewModel.getVideoList().observe(getActivity(), (videos) ->{
-//            mVideoList = videos;
-//            mCardsAdapter.clear();
-//            for (YouTubeVideo v : mVideoList){
-//                mCardsAdapter.add(v);
-//            }
-//            mCardsAdapter.notifyArrayItemRangeChanged(0, 1);
-//            Log.d("Fragment ViewModel", "notify");
-//        });
-//        mViewModel.searchVideo("suzy");
-        mVideoList = mViewModel.getVideoList().getValue();
+
+//        mVideoList = mViewModel.getVideoList().getValue();
     }
 
 }

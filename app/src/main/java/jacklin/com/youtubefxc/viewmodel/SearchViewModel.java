@@ -17,6 +17,8 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import jacklin.com.youtubefxc.api.CompleteSuggestion;
+import jacklin.com.youtubefxc.api.GoogleResponse;
 import jacklin.com.youtubefxc.api.SearchResponse;
 import jacklin.com.youtubefxc.api.VideoResponse;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
@@ -55,13 +57,38 @@ public class SearchViewModel extends ViewModel {
         if(videos == null){
             Log.v(TAG, "getVideoList NULL");
             videos = new MutableLiveData<>();
-            List<YouTubeVideo> list = new ArrayList<>();
-            for (int i = 0;i < 3;i++)
-                list.add(new YouTubeVideo("id","test", "test", 0, "now", null));
-            videos.setValue(list);
-
         }
         return videos;
+    }
+
+    public void searchSuggestion(String query){
+        networkDataModel.searchSuggestion(query)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+//                .filter(r-> r.code() == 200)
+                .subscribe(new DisposableObserver<Response<GoogleResponse>>() {
+                    @Override
+                    public void onNext(Response<GoogleResponse> googleResponseResponse) {
+                        Log.d("onNext", "" + googleResponseResponse.code());
+                        List<CompleteSuggestion> list
+                                = googleResponseResponse.body().getCompleteSuggestion();
+                        for (CompleteSuggestion i : list){
+                            String data = i.getSuggestion().getData();
+                            Log.d("data", data);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                        Log.d("onError", e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d("onComplete", "onComplete");
+                    }
+                });
     }
 
     public void searchRx(String query){
@@ -94,7 +121,7 @@ public class SearchViewModel extends ViewModel {
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onNext(Response<VideoResponse> videoResponse) {
-                            Log.d("YoutubeViewModel", "videoResponse : "
+                            Log.d("SearchViewModel", "videoResponse : "
                                     + videoResponse.body().getItems().get(0).getSnippet().getTitle());
                             for (int i = 0;i < temp.size();i++){
                                 if(temp.get(i).getId().getVideoId() != null &&
@@ -112,6 +139,7 @@ public class SearchViewModel extends ViewModel {
                                             ));
                                 }
                             }
+                            Log.d("SearchViewModel", "onNext :" + ytv.size());
                     }
 
                     @Override
@@ -123,8 +151,7 @@ public class SearchViewModel extends ViewModel {
                     public void onComplete() {
                         videos.setValue(ytv);
                     }
-                })
-        ;
+                });
 //    );
     }
 
