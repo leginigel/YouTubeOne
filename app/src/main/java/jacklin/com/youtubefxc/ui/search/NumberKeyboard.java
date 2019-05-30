@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ public class NumberKeyboard extends Fragment {
         return new NumberKeyboard();
     }
     private SearchViewModel mViewModel;
+    public static int OutId_Down, OutId_Left;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,6 +46,33 @@ public class NumberKeyboard extends Fragment {
             });
             textView.setOnClickListener(v -> mViewModel
                     .setQueryString((String) ((TextView) v).getText(), false));
+
+            if(i == 0) {
+                OutId_Left = textView.getId();
+            }
+            if(i > 20) {
+                textView.setNextFocusDownId(R.id.keyboard_text_space);
+            }
+            if(i == 20 || i == 27)
+                textView.setNextFocusRightId(textView.getId());
+
+            int finalI = i;
+            textView.setOnKeyListener((v, keyCode, event) -> {
+                if(event.getAction() == KeyEvent.ACTION_DOWN) {
+                    if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                        if(finalI % 7 == 0) {
+                            OutId_Left = v.getId();
+                        }
+                    }
+                    else if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                        if(finalI > 20) {
+                            Log.d("Check", textView.getText().toString());
+                            OutId_Down = v.getId();
+                        }
+                    }
+                }
+                return false;
+            });
         }
         return view;
     }

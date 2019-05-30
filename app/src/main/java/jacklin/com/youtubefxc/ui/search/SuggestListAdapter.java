@@ -25,6 +25,11 @@ public class SuggestListAdapter extends RecyclerView.Adapter<SuggestListAdapter.
     private List<String> items;
     private int size = 10;
     private ViewGroup mLeftNav;
+    private SearchFragment mSearchFragment;
+
+    public SuggestListAdapter(SearchFragment searchFragment) {
+        this.mSearchFragment  =searchFragment;
+    }
 
     @NonNull
     @Override
@@ -44,6 +49,7 @@ public class SuggestListAdapter extends RecyclerView.Adapter<SuggestListAdapter.
         else{
             viewHolder.textView.setText(items.get(i));
             viewHolder.cardView.setOnClickListener(v ->{
+                mSearchFragment.getRow().setVisibility(View.VISIBLE);
                 vm.searchRx(viewHolder.textView.getText().toString());
                 vm.setIsLoading(true);
                 resize(5);
@@ -53,10 +59,14 @@ public class SuggestListAdapter extends RecyclerView.Adapter<SuggestListAdapter.
 
         viewHolder.cardView.setOnKeyListener((v, keyCode, event) -> {
             if(event.getAction() == KeyEvent.ACTION_DOWN){
-                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN)
+                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                     mLeftNav.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                }
                 else {
                     mLeftNav.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+                }
+                if(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT){
+                    v.setNextFocusRightId(mSearchFragment.getRecyclerViewNextFocusRightId());
                 }
             }
             return false;

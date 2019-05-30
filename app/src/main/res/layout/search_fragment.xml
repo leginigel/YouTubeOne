@@ -22,7 +22,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/view"
+        android:id="@+id/rv_view"
         android:layout_width="260dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -47,7 +47,7 @@
         android:layout_width="265dp"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintStart_toEndOf="@id/view"
+        app:layout_constraintStart_toEndOf="@id/rv_view"
         app:layout_constraintTop_toBottomOf="@id/search_bar" />
 
     <android.support.v7.widget.CardView
@@ -62,7 +62,7 @@
         android:focusableInTouchMode="true"
         android:focusedByDefault="false"
         app:cardElevation="0dp"
-        app:layout_constraintStart_toEndOf="@+id/view"
+        app:layout_constraintStart_toEndOf="@+id/rv_view"
         app:layout_constraintTop_toBottomOf="@+id/keyboard">
 
         <TextView
