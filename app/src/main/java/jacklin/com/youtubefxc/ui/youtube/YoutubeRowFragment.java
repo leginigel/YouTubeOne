@@ -152,6 +152,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
                     ((TextView) imgCard.findViewById(R.id.title_text))
                             .setTextColor(Color.WHITE);
                 }
+//if(mCardsAdapter.indexOf(o) == 0) mYouTubeCardPresenter.setFocusOutNavigation(cardViewHolder);
 
                 // Set the Selected Color
                 imgCard = cardViewHolder.getImageCardView();

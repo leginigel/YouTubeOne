@@ -70,20 +70,12 @@ public class AlphabetKeyborad extends Fragment {
                     if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
                         if(finalI % 7 == 0) {
                             OutId_Left = v.getId();
-                        }
 //                            recyclerView.requestFocus();
-//                            ((SuggestListAdapter) recyclerView.getAdapter()).resize(5);
-//                            recyclerView.scrollToPosition(0);
-//                            recyclerView.getChildAt(0).requestFocus();
-
-                        TextView t = recyclerView.getLayoutManager().findViewByPosition(0).findViewById(R.id.suggest_text);
-                        Log.d("CHECK", t.getText().toString());
-                        CardView c = recyclerView.getLayoutManager().findViewByPosition(0).findViewById(R.id.suggest_card);
-//                            ((ViewGroup) view).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-//                            c.requestFocus();
 //                            recyclerView.restoreDefaultFocus();
 //                            recyclerView.getLayoutManager().findViewByPosition(0).requestFocus();
-//                            recyclerView.getAdapter().;
+                            recyclerView.getChildAt(SuggestListAdapter.OutId).requestFocus();
+                            return true;
+                        }
                     }
                     else if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                         if(finalI > 20) {

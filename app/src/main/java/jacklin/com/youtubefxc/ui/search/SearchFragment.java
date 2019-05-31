@@ -46,8 +46,8 @@ public class SearchFragment extends Fragment {
     private FragmentManager fm;
     private TextView searchBar;
     private CardView searchIcon, clearIcon, spaceIcon, backspaceIcon, shiftIcon;
-    private View suggest, view;
-    private FrameLayout mKeyboard, mRow;
+    private View view;
+    private FrameLayout mRow;
     private AlphabetKeyborad mAlphabet;
     private NumberKeyboard mNumber;
     private SpinnerFragment mSpinner;
@@ -97,8 +97,15 @@ public class SearchFragment extends Fragment {
         backspaceIcon.getChildAt(0).setOnClickListener(v -> deleteBarChar());
 
         spaceIcon.getChildAt(0).setOnKeyListener((v, keyCode, event) ->{
-            if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_LEFT){
-                RightFromSpace = true;
+            if(event.getAction() == KeyEvent.ACTION_DOWN ) {
+                if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                    RightFromSpace = true;
+                    recyclerView.getChildAt(SuggestListAdapter.OutId).requestFocus();
+                    return true;
+                }
+                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN /*&& mRow.getVisibility() != View.GONE*/) {
+                    SuggestListAdapter.UpFromSuggestion = false;
+                }
             }
             return false;
         });
@@ -109,10 +116,8 @@ public class SearchFragment extends Fragment {
     }
 
     private void findView(){
-        mKeyboard = view.findViewById(R.id.keyboard);
         mRow = view.findViewById(R.id.search_row);
         recyclerView = view.findViewById(R.id.rv_view);
-        suggest = view.findViewById(R.id.rv_view);
         searchBar = view.findViewById(R.id.search_bar);
         searchIcon = view.findViewById(R.id.cardViewSearch);
         clearIcon = view.findViewById(R.id.cardViewClear);
@@ -135,8 +140,10 @@ public class SearchFragment extends Fragment {
                             v.setNextFocusUpId(AlphabetKeyborad.OutId_Down);
                         else if(mType == Keyboard.Number)
                             v.setNextFocusUpId(NumberKeyboard.OutId_Down);
-                        if(mRow.getVisibility() == View.GONE)
+                        if(mRow.getVisibility() == View.GONE) {
                             v.setNextFocusDownId(v.getId());
+                        }
+                        else v.setNextFocusDownId(R.id.search_row);
                     }
                     if(finalI == 6)
                         v.setNextFocusRightId(v.getId());
@@ -177,6 +184,7 @@ public class SearchFragment extends Fragment {
 
     private void clearSearchBar(){
         mViewModel.setQueryString("clear", true);
+        mSuggestListAdapter.clear();
         mSuggestListAdapter.resize(10);
         rowFragment.clear();
         mRow.setVisibility(View.GONE);
@@ -204,7 +212,9 @@ public class SearchFragment extends Fragment {
             }
             else{
                 fm.beginTransaction().replace(R.id.search_row, rowFragment).commit();
+                mRow.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
                 mRow.requestFocus();
+//                rowFragment.getView().requestFocus();
             }
         });
     }
