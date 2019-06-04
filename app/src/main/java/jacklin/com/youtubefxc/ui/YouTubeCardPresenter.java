@@ -124,7 +124,7 @@ public class YouTubeCardPresenter extends Presenter {
             if(event.getAction() == KeyEvent.ACTION_DOWN){
                 setDefaultFocus(v, keyCode);
                 if(keyCode == KeyEvent.KEYCODE_BACK){
-                    setPressBack();
+                    setPressBack(v);
                     return true;
                 }
             }
@@ -146,8 +146,11 @@ public class YouTubeCardPresenter extends Presenter {
         }
     }
 
-    public void setPressBack(){
+    public void setPressBack(View v){
         mTopNav.requestFocus();
+        ImageCardView imgCard = v.findViewById(R.id.img_card_view);
+        imgCard.setInfoAreaBackgroundColor(mContext.getResources().getColor(R.color.background));
+        ((TextView) imgCard.findViewById(R.id.title_text)).setTextColor(Color.WHITE);
     }
 
     public class CardViewHolder extends Presenter.ViewHolder{

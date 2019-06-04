@@ -1,9 +1,11 @@
 package jacklin.com.youtubefxc.ui.search;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.CardView;
@@ -18,12 +20,14 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import jacklin.com.youtubefxc.R;
+import jacklin.com.youtubefxc.ui.youtube.YoutubeRowFragment;
 import jacklin.com.youtubefxc.viewmodel.SearchViewModel;
 
 /**
  * A simple {@link Fragment} subclass.
  * ViewModel {@link SearchViewModel}
  */
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class SearchFragment extends Fragment {
 
     private static final String TAG = SearchFragment.class.getSimpleName();
@@ -106,7 +110,26 @@ public class SearchFragment extends Fragment {
                     recyclerView.getChildAt(SuggestListAdapter.OutId).requestFocus();
                     return true;
                 }
-                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN /*&& mRow.getVisibility() != View.GONE*/) {
+                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN && mRow.getVisibility() == View.VISIBLE) {
+                    YoutubeRowFragment.highlightRowFocus(getActivity(), rowFragment);
+                    SuggestListAdapter.UpFromSuggestion = false;
+                }
+            }
+            return false;
+        });
+        clearIcon.getChildAt(0).setOnKeyListener((v, keyCode, event) ->{
+            if(event.getAction() == KeyEvent.ACTION_DOWN ) {
+                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN && mRow.getVisibility() == View.VISIBLE) {
+                    YoutubeRowFragment.highlightRowFocus(getActivity(), rowFragment);
+                    SuggestListAdapter.UpFromSuggestion = false;
+                }
+            }
+            return false;
+        });
+        searchIcon.getChildAt(0).setOnKeyListener((v, keyCode, event) ->{
+            if(event.getAction() == KeyEvent.ACTION_DOWN ) {
+                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN && mRow.getVisibility() == View.VISIBLE) {
+                    YoutubeRowFragment.highlightRowFocus(getActivity(), rowFragment);
                     SuggestListAdapter.UpFromSuggestion = false;
                 }
             }

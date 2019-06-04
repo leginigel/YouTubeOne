@@ -114,7 +114,6 @@ public class SearchViewModel extends ViewModel {
 
                     @Override
                     public void onError(Throwable e) {
-
                         Log.d("onError", e.toString());
                     }
 
@@ -161,8 +160,7 @@ public class SearchViewModel extends ViewModel {
                             for (int i = 0;i < temp.size();i++){
                                 if(temp.get(i).getId().getVideoId() != null &&
                                         temp.get(i).getId().getVideoId().equals(videoResponse.body().getItems().get(i).getId())) {
-                                    Log.d("test", "onActivityCreated:"
-                                            + videoResponse.body().getItems().get(i).getSnippet().getTitle());
+//                                    Log.d("test", "onActivityCreated:" + videoResponse.body().getItems().get(i).getSnippet().getTitle());
                                     ytv.add(
                                             new YouTubeVideo(
                                                     temp.get(i).getId().getVideoId(),

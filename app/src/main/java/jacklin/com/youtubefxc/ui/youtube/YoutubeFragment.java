@@ -10,8 +10,6 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.text.Editable;
-import android.text.method.KeyListener;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -108,6 +106,9 @@ public class YoutubeFragment extends Fragment {
                     if(getTabCategory() == category) {
                         button.setSelected(true);
                     }
+
+                    YoutubeRowFragment frag = (YoutubeRowFragment) fm.findFragmentById(R.id.container_row);
+                    YoutubeRowFragment.highlightRowFocus(getActivity(), frag);
                 }
                 if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT && category == TabCategory.Recommended) {
                     button.setSelected(true);

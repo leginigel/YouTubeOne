@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jacklin.com.youtubefxc.data.YouTubeVideo;
+import jacklin.com.youtubefxc.ui.YouTubeCardPresenter;
 import jacklin.com.youtubefxc.ui.youtube.YoutubeRowFragment;
 import jacklin.com.youtubefxc.viewmodel.SearchViewModel;
 
@@ -73,5 +74,20 @@ public class SearchRowFragment extends YoutubeRowFragment {
     public void clear(){
         if(mRowsAdapter != null)
         mRowsAdapter.clear();
+    }
+
+    @Override
+    public ArrayObjectAdapter getCardsAdapter() {
+        return mCardsAdapter;
+    }
+
+    @Override
+    public ArrayObjectAdapter getRowsAdapter() {
+        return mRowsAdapter;
+    }
+
+    @Override
+    public YouTubeCardPresenter getCardPresenter() {
+        return mSearchCardPresenter;
     }
 }
