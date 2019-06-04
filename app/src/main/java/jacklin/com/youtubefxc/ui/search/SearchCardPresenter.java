@@ -18,17 +18,11 @@ public class SearchCardPresenter extends YouTubeCardPresenter {
                     else
                         v.setNextFocusUpId(R.id.keyboard_text_clear);
                 }
-                if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT)
-                    mLeftNav.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-                else {
+                if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                    v.setNextFocusLeftId(R.id.search_btn);
+                    ((SearchFragment) mFragment).setFocus(SearchFragment.FocusLocation.SearchRow);
                     mLeftNav.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
                 }
-//                if(event.getAction() == KeyEvent.ACTION_DOWN){
-//                    if(keyCode == KeyEvent.KEYCODE_BACK){
-//                        mTopNav.requestFocus();
-//                        return true;
-//                    }
-//                }
             }
             return false;
         });

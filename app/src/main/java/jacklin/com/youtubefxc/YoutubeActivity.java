@@ -1,20 +1,28 @@
 package jacklin.com.youtubefxc;
 
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ListRowView;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.youtube.player.YouTubeApiServiceUtil;
 import com.google.android.youtube.player.YouTubeInitializationResult;
@@ -22,8 +30,10 @@ import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
 import jacklin.com.youtubefxc.api.YoutubeService;
+import jacklin.com.youtubefxc.data.YouTubeVideo;
 import jacklin.com.youtubefxc.ui.BlankFragment;
 import jacklin.com.youtubefxc.ui.PlayerControlsFragment;
+import jacklin.com.youtubefxc.ui.YouTubeCardPresenter;
 import jacklin.com.youtubefxc.ui.search.SearchFragment;
 import jacklin.com.youtubefxc.ui.search.SuggestListAdapter;
 import jacklin.com.youtubefxc.ui.youtube.YoutubeFragment;
@@ -149,15 +159,48 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
                     view.setSelected(true);
                     if(homeIcon.isSelected()){
                         YoutubeRowFragment frag = (YoutubeRowFragment) youtubeFragment.getFragmentManager().findFragmentById(R.id.container_row);
-                        int check = frag.getSelectedPosition();
-                        ListRow listRow = (ListRow) frag.getAdapter().get(check);
+                        VerticalGridView verticalGridView = frag.getVerticalGridView();
 
-//                        (YoutubeVideo)View t = (View) listRow.getAdapter().get(0);
+                        int selected_vertical = verticalGridView.getSelectedPosition();
+                        ViewGroup rowContainer = (ViewGroup) verticalGridView.getChildAt(selected_vertical);  //row container
+
+                        ListRowView listRowView = (ListRowView) rowContainer.getChildAt(1);
+                        int selected_row = listRowView.getGridView().getSelectedPosition();
+
+                        Log.d("check", ""+selected_row);
+                        View e = listRowView.getGridView().getChildAt(selected_row);
+//                        i = ((ViewGroup)v.getChildAt(1)).getChildCount();
+//                        RecyclerView.ViewHolder cardViewHolder = listRowView.getGridView().getChildViewHolder(e);
+//                        listRowView.getGridView().findViewById()
+
+                        ImageCardView imgCard = listRowView.getGridView().getChildAt(selected_row).findViewById(R.id.img_card_view);
+                        imgCard.setInfoAreaBackgroundColor(Color.WHITE);
+                        ((TextView) imgCard.findViewById(R.id.title_text))
+                                .setTextColor(getResources().getColor(R.color.background));
+//                        int check = frag.getSelectedPosition();
+//                        ListRow listRow = (ListRow) frag.getAdapter().get(check);
+//                        ArrayObjectAdapter adapter = (ArrayObjectAdapter) listRow.getAdapter();
+//                        YouTubeVideo ytv = (YouTubeVideo) listRow.getAdapter().get(0);
+//                        YouTubeCardPresenter ycp = (YouTubeCardPresenter) adapter.getPresenter(ytv);
+
+//                        RecyclerView.ViewHolder cardViewHolder = verticalGridView.getChildViewHolder(v);
+//                        cardViewHolder.getLayoutPosition();
+//                        GridLayoutManager gridLayoutManager = (GridLayoutManager) frag.getVerticalGridView().getLayoutManager();
+//                        View v = gridLayoutManager.findViewByPosition(frag.getVerticalGridView().getSelectedPosition());
+//                        gridLayoutManager.getSelection();
 //                        adapter.getPresenter()
                     }
                     if(searchIcon.isSelected()) {
                         RecyclerView suggestions = searchFragment.getView().findViewById(R.id.rv_view);
-                        suggestions.getChildAt(SuggestListAdapter.OutId).requestFocus();
+                        View searchRow = searchFragment.getView().findViewById(R.id.search_row);
+                        if(searchFragment.getFocus() == SearchFragment.FocusLocation.Suggestion) {
+                            suggestions.getChildAt(SuggestListAdapter.OutId).requestFocus();
+                        }
+                        else if(searchFragment.getFocus() == SearchFragment.FocusLocation.SearchRow){
+//                            searchRow.requestFocus();
+                            searchIcon.setNextFocusRightId(R.id.search_row);
+                            return false;
+                        }
                         return true;
                     }
                 }

@@ -15,7 +15,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import jacklin.com.youtubefxc.R;
@@ -25,11 +24,12 @@ import jacklin.com.youtubefxc.viewmodel.SearchViewModel;
  * A simple {@link Fragment} subclass.
  * ViewModel {@link SearchViewModel}
  */
-public class AlphabetKeyborad extends Fragment {
+public class AlphabetKeyboard extends Fragment {
 
-    public static AlphabetKeyborad newInstance(){
-        return new AlphabetKeyborad();
+    public static AlphabetKeyboard newInstance(){
+        return new AlphabetKeyboard();
     }
+    public static final String TAG = AlphabetKeyboard.class.getSimpleName();
     private SearchViewModel mViewModel;
     public static int OutId_Down, OutId_Left;
 
@@ -37,6 +37,7 @@ public class AlphabetKeyborad extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.i(TAG, "onCreateView");
         View view = inflater.inflate(R.layout.alphabet_keyboard, container, false);
         ViewGroup viewGroup = (ViewGroup) view;
         Fragment fragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.container_home);
@@ -79,7 +80,7 @@ public class AlphabetKeyborad extends Fragment {
                     }
                     else if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                         if(finalI > 20) {
-                            Log.d("Check", textView.getText().toString());
+//                            Log.d("Check", textView.getText().toString());
                             OutId_Down = v.getId();
                         }
                     }

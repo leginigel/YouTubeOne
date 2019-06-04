@@ -18,6 +18,7 @@ import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -48,12 +49,7 @@ import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
 public class YoutubeRowFragment extends RowsSupportFragment {
 
     private final static String TAG = YoutubeRowFragment.class.getSimpleName();
-    private List<YouTubeVideo> mVideoList = new ArrayList<>();
-    private Map<String, List<YouTubeVideo>> mRecommendedChannel;
-    private Map<String, List<YouTubeVideo>> mLatestChannel;
-    private Map<String, List<YouTubeVideo>> mMusicChannel;
-
-    private ViewGroup mContainer;
+    private VerticalGridView mGridView;
     private ArrayObjectAdapter mCardsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
     private ListRowPresenter mListRowPresenter;
@@ -82,7 +78,8 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.i(TAG, "onActivityCreated");
+//        Log.i(TAG, "onActivityCreated");
+        mGridView = getVerticalGridView();
     }
 
     public void setRows(Map<String, List<YouTubeVideo>> channelList){
@@ -149,16 +146,70 @@ public class YoutubeRowFragment extends RowsSupportFragment {
                 // Reset the ImageCardView Info Color
                 if(imgCard != null){
                     imgCard.setInfoAreaBackgroundColor(getResources().getColor(R.color.background));
-                    ((TextView) imgCard.findViewById(R.id.title_text))
-                            .setTextColor(Color.WHITE);
+                    ((TextView) imgCard.findViewById(R.id.title_text)).setTextColor(Color.WHITE);
                 }
-//if(mCardsAdapter.indexOf(o) == 0) mYouTubeCardPresenter.setFocusOutNavigation(cardViewHolder);
+                if(mCardsAdapter.indexOf(o) == 0 && mRowsAdapter.indexOf(row) == 0) {
+                    cardViewHolder.view.setOnKeyListener((v, keyCode, event) ->{
+                        if(event.getAction() == KeyEvent.ACTION_DOWN){
+                            mYouTubeCardPresenter.setDefaultFocus(v, keyCode);
+                            if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_UP){
+                                imgCard.setInfoAreaBackgroundColor(getResources().getColor(R.color.background));
+                                ((TextView) imgCard.findViewById(R.id.title_text))
+                                        .setTextColor(Color.WHITE);
+                            }
+                            if(keyCode == KeyEvent.KEYCODE_BACK){
+                                mYouTubeCardPresenter.setPressBack();
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                }
+                else if(mCardsAdapter.indexOf(o) == 0){
+                    cardViewHolder.view.setOnKeyListener((v, keyCode, event) ->{
+                        if(event.getAction() == KeyEvent.ACTION_DOWN){
+                            mYouTubeCardPresenter.setDefaultFocus(v, keyCode);
+                            if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT){
+                                imgCard.setInfoAreaBackgroundColor(getResources().getColor(R.color.background));
+                                ((TextView) imgCard.findViewById(R.id.title_text))
+                                        .setTextColor(Color.WHITE);
+                            }
+                            if(keyCode == KeyEvent.KEYCODE_BACK){
+                                mYouTubeCardPresenter.setPressBack();
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                }
+                else if(mRowsAdapter.indexOf(row) == 0){
+                    cardViewHolder.view.setOnKeyListener((v, keyCode, event) ->{
+                        if(event.getAction() == KeyEvent.ACTION_DOWN){
+                            mYouTubeCardPresenter.setDefaultFocus(v, keyCode);
+                            if(keyCode == KeyEvent.KEYCODE_DPAD_UP){
+                                imgCard.setInfoAreaBackgroundColor(getResources().getColor(R.color.background));
+                                ((TextView) imgCard.findViewById(R.id.title_text)).setTextColor(Color.WHITE);
+                            }
+                            if(keyCode == KeyEvent.KEYCODE_BACK){
+                                mYouTubeCardPresenter.setPressBack();
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                }
+
+
 
                 // Set the Selected Color
                 imgCard = cardViewHolder.getImageCardView();
                 imgCard.setInfoAreaBackgroundColor(Color.WHITE);
                 ((TextView) imgCard.findViewById(R.id.title_text))
                         .setTextColor(getResources().getColor(R.color.background));
+
+            Log.d(TAG, "onItemSelected1" + mGridView.getSelectedPosition());
+            Log.d(TAG, "onItemSelected2" + mGridView.getChildAdapterPosition(cardViewHolder.view));
+            Log.d(TAG, "onItemSelected3" + mGridView.getChildLayoutPosition(cardViewHolder.view));
             }
         }
 

@@ -71,6 +71,7 @@ public class SearchRowFragment extends YoutubeRowFragment {
     }
 
     public void clear(){
+        if(mRowsAdapter != null)
         mRowsAdapter.clear();
     }
 }

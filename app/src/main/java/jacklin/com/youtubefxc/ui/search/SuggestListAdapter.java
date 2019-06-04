@@ -62,6 +62,7 @@ public class SuggestListAdapter extends RecyclerView.Adapter<SuggestListAdapter.
         if(items == null){
 //            viewHolder.textView.setText("CHECK "+ i);
             viewHolder.imageView.setVisibility(View.VISIBLE);
+            viewHolder.imageView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_whatshot_24dp));
             viewHolder.textView.setText(default_suggestion[i]);
         }
         else{
@@ -92,6 +93,7 @@ public class SuggestListAdapter extends RecyclerView.Adapter<SuggestListAdapter.
                 }
                 else if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
                     OutId = i;
+                    mSearchFragment.setFocus(SearchFragment.FocusLocation.Suggestion);
                 }
             }
             return false;
@@ -116,13 +118,13 @@ public class SuggestListAdapter extends RecyclerView.Adapter<SuggestListAdapter.
                 else cardView.setCardElevation(0);
             });
             imageView = itemView.findViewById(R.id.suggest_img);
-//            imageView.setImageDrawable(null);
-            imageView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_whatshot_24dp));
             textView = itemView.findViewById(R.id.suggest_text);
         }
     }
 
     public void refresh(List<String> list){
+        if(items != null)
+            this.items.clear();
         this.items = new ArrayList<>();
         this.items.addAll(list);
         notifyDataSetChanged();
