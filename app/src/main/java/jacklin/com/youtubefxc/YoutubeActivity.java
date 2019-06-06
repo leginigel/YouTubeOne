@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -38,15 +39,18 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
     private SearchFragment searchFragment;
     private YoutubeFragment youtubeFragment;
     private PlayerControlsFragment playerControlsFragment;
+    private PlayerControlsFragment.MyPlaybackEventListener playbackEventListener;
     private YouTubePlayer youTubePlayer;
 
     private ImageView searchIcon, homeIcon, subIcon, folderIcon, settingIcon;
-    private View playerBox, playerControls;
+    private View playerBox;
 
     public enum PageCategory {
         Search, Home, Subscription, Library, Account, Setting
     }
-
+    public enum PlaybackState{
+        PLAYING, NOT_PLAYING, STOPPED, PAUSED, BUFFERING
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +58,7 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
 
         searchFragment = SearchFragment.newInstance();
         youtubeFragment = YoutubeFragment.newInstance();
-        playerControlsFragment = playerControlsFragment.newInstance();
+        playerControlsFragment = PlayerControlsFragment.newInstance();
         YouTubePlayerSupportFragment youTubePlayerFragment = YouTubePlayerSupportFragment.newInstance();
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -65,24 +69,31 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
 //                    .addToBackStack(tag)
                     .replace(R.id.fragment_youtube_player, youTubePlayerFragment)
                     .commit();
-            getSupportFragmentManager().beginTransaction()
-//                    .addToBackStack(tag)
-                    .replace(R.id.fragment_player_controls, playerControlsFragment)
-                    .commit();
         }
 
+        playbackEventListener = playerControlsFragment.getPlaybackEventListener();
         youTubePlayerFragment.initialize(YoutubeService.key, this);
-        playerControls = findViewById(R.id.fragment_player_controls);
-        playerControls.setVisibility(View.INVISIBLE);
+
         playerBox = findViewById(R.id.fragment_youtube_player);
         playerBox.setVisibility(View.INVISIBLE);
         playerBox.setOnKeyListener((v, keyCode, event) -> {
-            if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
-                Log.d("onKey","KEYCODE_DPAD_DOWN");
-                playerControls.setVisibility(View.VISIBLE);
-                playerControls.requestFocus();
-                playerControlsFragment.showTime();
-                return true;
+            if(event.getAction() == KeyEvent.ACTION_DOWN) {
+                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_UP
+                || keyCode == KeyEvent.KEYCODE_ENTER) {
+//                    Log.d("onKey", "KEYCODE_DPAD_DOWN");
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+                    if(prev != null) {
+                        ft.remove(prev);
+                    }
+//                getSupportFragmentManager().beginTransaction().addToBackStack(null);
+                    playerControlsFragment.show(ft, "dialog");
+                    return true;
+                }
+                if(keyCode == KeyEvent.KEYCODE_BACK){
+                    playerBox.setVisibility(View.INVISIBLE);
+                    return true;
+                }
             }
             return false;
         });
@@ -105,11 +116,6 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
         setIconOnKeyListener();
 
         checkYouTubeApi();
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return super.onKeyDown(keyCode, event);
     }
 
     private void setIconFocus(ImageView image, PageCategory category){
@@ -214,6 +220,10 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
         return youTubePlayer;
     }
 
+    public PlayerControlsFragment getPlayerControlsFragment() {
+        return playerControlsFragment;
+    }
+
     public YouTubePlayer.Provider getYouTubePlayerProvider() {
         return (YouTubePlayerSupportFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_youtube_player);
     }
@@ -221,12 +231,12 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
         youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
-//        youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.MINIMAL);
-//            youTubePlayer.setFullscreenControlFlags(YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
         this.youTubePlayer = youTubePlayer;
-//            youTubePlayer.setPlaylistEventListener(playlistEventListener);
-//            youTubePlayer.setPlayerStateChangeListener(playerStateChangeListener);
-//            youTubePlayer.setPlaybackEventListener(playbackEventListener);
+//        youTubePlayer.setPlayerStyle(YouTubePlayer.PlayerStyle.MINIMAL);
+//        youTubePlayer.setFullscreenControlFlags(YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
+//        youTubePlayer.setPlaylistEventListener(playlistEventListener);
+//        youTubePlayer.setPlayerStateChangeListener(playbackEventListener);
+        youTubePlayer.setPlaybackEventListener(playbackEventListener);
         if (!wasRestored) {
             Log.d("CheckPoint", "CheckPoint !wasRestored");
 //                youTubePlayer.cueVideo(video.getId());
@@ -254,7 +264,6 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
     public void onBackPressed() {
         if (playerBox.getVisibility() == View.VISIBLE){
             playerBox.setVisibility(View.INVISIBLE);
-            playerControls.setVisibility(View.INVISIBLE);
         }
         else
         super.onBackPressed();
@@ -270,4 +279,5 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
             Log.d("checkYouTubeApi", errorMessage);
         }
     }
+
 }

@@ -144,8 +144,7 @@ public class YoutubeRowFragment extends RowsSupportFragment {
 
         youTubePlayerFragment = (YouTubePlayerSupportFragment) getActivity()
                 .getSupportFragmentManager().findFragmentById(R.id.fragment_youtube_player);
-        playerControlsFragment = (PlayerControlsFragment) getActivity()
-                .getSupportFragmentManager().findFragmentById(R.id.fragment_player_controls);
+        playerControlsFragment = ((YoutubeActivity) getActivity()).getPlayerControlsFragment();
         mVideoBox = ((YoutubeActivity) getActivity()).getPlayerBox();
         mPlayer = ((YoutubeActivity) getActivity()).getYouTubePlayer();
     }
@@ -229,8 +228,6 @@ public class YoutubeRowFragment extends RowsSupportFragment {
     }
 
     public final class YouTubeCardClickedListener implements OnItemViewClickedListener {
-
-        // TODO: 2019/5/21 The Video Player Should Change
         private YouTubeVideo video = null;
 
         @Override
