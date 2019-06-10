@@ -1,8 +1,10 @@
 package jacklin.com.youtubefxc.ui;
 
 
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.DialogFragment;
@@ -38,14 +40,7 @@ public class PlayerControlsFragment extends DialogFragment {
         return new PlayerControlsFragment();
     }
 
-
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Translucent_NoTitleBar);
-    }
-
+    private int CountDown;
     private ImageButton playButton;
     private SeekBar seekBar;
     TextView titleText, channelText, countText, publishText, timeText, durationText, playText;
@@ -53,12 +48,23 @@ public class PlayerControlsFragment extends DialogFragment {
     private YouTubeVideo mVideo;
     private YouTubePlayer mPlayer;
     private MyPlaybackEventListener playbackEventListener = new MyPlaybackEventListener();
+    public enum PlaybackState{
+        PLAYING, NOT_PLAYING, STOPPED, PAUSED, BUFFERING
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Translucent_NoTitleBar);
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_player_controls, container, false);
         timer = new Timer();
+        CountDown = 5;
         mPlayer = ((YoutubeActivity) getActivity()).getYouTubePlayer();
         setText(view);
 
@@ -66,26 +72,24 @@ public class PlayerControlsFragment extends DialogFragment {
 //        seekBar.getThumb().setColorFilter(getResources().getColor(R.color.button_selecting), PorterDuff.Mode.SRC_IN);
 //        seekBar.getProgressDrawable()
 //                .setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.SRC_IN);
-
         seekBar.setMax(mPlayer.getDurationMillis());
         seekBar.setProgress(mPlayer.getCurrentTimeMillis());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Log.d("SeekBar", "onProgressChanged" + progress);
+//                Log.d("SeekBar", "onProgressChanged" + progress);
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-        seekBar.setOnFocusChangeListener((v, hasFocus) -> { });
+        seekBar.setOnFocusChangeListener((v, hasFocus) -> {
+            if(hasFocus) seekBar.setBackgroundColor(Color.parseColor("#22ebebeb"));
+            else seekBar.setBackgroundColor(Color.TRANSPARENT);
+        });
         seekBar.setOnClickListener(v -> {
 //            Log.d("SeekBar", "onClick" + seekBar.getProgress());
             mPlayer.seekToMillis(seekBar.getProgress());
@@ -95,13 +99,14 @@ public class PlayerControlsFragment extends DialogFragment {
         AtomicBoolean isChanged = new AtomicBoolean(false);
         seekBar.setOnKeyListener((v, keyCode, event) -> {
             if(event.getAction() == KeyEvent.ACTION_DOWN) {
+                CountDown = 5;
                 if(keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     if(isChanged.get()){
                         mPlayer.play();
                         isChanged.set(false);
                     }
                     close();
-                    return true;
+//                    return true;
                 }
                 if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
                     mPlayer.pause();
@@ -113,11 +118,13 @@ public class PlayerControlsFragment extends DialogFragment {
                         isChanged.set(false);
                     }
                 }
+                if(keyCode == KeyEvent.KEYCODE_BACK){
+                    ((YoutubeActivity) getActivity()).getPlayerBox().requestFocus();
+                }
             }
             return false;
         });
         updateSeekBar();
-
 
         playText = view.findViewById(R.id.play_text);
         playButton = view.findViewById(R.id.play_button);
@@ -128,6 +135,7 @@ public class PlayerControlsFragment extends DialogFragment {
                 playText.setText("Pause");
             }
             else{
+                CountDown = 5;
                 mPlayer.play();
                 playButton.setImageDrawable(getResources().getDrawable(R.drawable.lb_ic_play));
                 playText.setText("Play");
@@ -157,10 +165,13 @@ public class PlayerControlsFragment extends DialogFragment {
 //        window.setAttributes(layoutParams);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void close(){
         Fragment fragment = getFragmentManager().findFragmentByTag("dialog");
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.remove(fragment).commit();
+
+        ((YoutubeActivity) getActivity()).getPlayerBox().requestFocus();
     }
 
     @Override
@@ -171,6 +182,7 @@ public class PlayerControlsFragment extends DialogFragment {
 
     private void updateSeekBar() {
         TimerTask task = new TimerTask() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void run() {
                 int currentPosition = mPlayer.getCurrentTimeMillis();
@@ -179,6 +191,8 @@ public class PlayerControlsFragment extends DialogFragment {
                     getActivity().runOnUiThread(() -> {
                             timeText.setText(formatTime(mPlayer.getCurrentTimeMillis()));
                     });
+                    CountDown--;
+                    if(CountDown < 0) close();
                 }
             }
         };
@@ -224,11 +238,11 @@ public class PlayerControlsFragment extends DialogFragment {
     }
 
     public final class MyPlaybackEventListener implements YouTubePlayer.PlaybackEventListener {
-        YoutubeActivity.PlaybackState playbackState = YoutubeActivity.PlaybackState.NOT_PLAYING;
+        PlaybackState playbackState = PlaybackState.NOT_PLAYING;
         String bufferingState = "";
         @Override
         public void onPlaying() {
-            playbackState = YoutubeActivity.PlaybackState.PLAYING;
+            playbackState = PlaybackState.PLAYING;
             Log.d(this.getClass().getSimpleName(), "" + playbackState);
         }
 
@@ -240,13 +254,13 @@ public class PlayerControlsFragment extends DialogFragment {
 
         @Override
         public void onStopped() {
-            playbackState = YoutubeActivity.PlaybackState.STOPPED;
+            playbackState = PlaybackState.STOPPED;
             Log.d(this.getClass().getSimpleName(), "" + playbackState);
         }
 
         @Override
         public void onPaused() {
-            playbackState = YoutubeActivity.PlaybackState.PAUSED;
+            playbackState = PlaybackState.PAUSED;
             Log.d(this.getClass().getSimpleName(), "" + playbackState);
         }
 

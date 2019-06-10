@@ -5,6 +5,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v17.leanback.app.RowsSupportFragment;
+import android.support.v17.leanback.widget.ListRowView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -38,6 +40,7 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
 
     private SearchFragment searchFragment;
     private YoutubeFragment youtubeFragment;
+    private YouTubePlayerSupportFragment youTubePlayerFragment;
     private PlayerControlsFragment playerControlsFragment;
     private PlayerControlsFragment.MyPlaybackEventListener playbackEventListener;
     private YouTubePlayer youTubePlayer;
@@ -48,9 +51,6 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
     public enum PageCategory {
         Search, Home, Subscription, Library, Account, Setting
     }
-    public enum PlaybackState{
-        PLAYING, NOT_PLAYING, STOPPED, PAUSED, BUFFERING
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +59,7 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
         searchFragment = SearchFragment.newInstance();
         youtubeFragment = YoutubeFragment.newInstance();
         playerControlsFragment = PlayerControlsFragment.newInstance();
-        YouTubePlayerSupportFragment youTubePlayerFragment = YouTubePlayerSupportFragment.newInstance();
+        youTubePlayerFragment = YouTubePlayerSupportFragment.newInstance();
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
 //                    .addToBackStack(tag)
@@ -90,15 +90,9 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
                     playerControlsFragment.show(ft, "dialog");
                     return true;
                 }
-                if(keyCode == KeyEvent.KEYCODE_BACK){
-                    playerBox.setVisibility(View.INVISIBLE);
-                    return true;
-                }
             }
             return false;
         });
-
-        mPageCategory = PageCategory.Home;
 
         ViewGroup leftNav = findViewById(R.id.left_nav);
         leftNav.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
@@ -111,6 +105,7 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
 
         homeIcon.setSelected(true);
         homeIcon.getDrawable().setColorFilter(getResources().getColor(R.color.button_selecting), PorterDuff.Mode.SRC_IN);
+        mPageCategory = PageCategory.Home;
 
         setIconFocusListener();
         setIconOnKeyListener();
@@ -239,8 +234,8 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
         youTubePlayer.setPlaybackEventListener(playbackEventListener);
         if (!wasRestored) {
             Log.d("CheckPoint", "CheckPoint !wasRestored");
-//                youTubePlayer.cueVideo(video.getId());
-//                youTubePlayer.play();
+//            youTubePlayer.cueVideo(video.getId());
+//            youTubePlayer.play();
 //            youTubePlayer.loadVideo(video.getId());
         }
         else{
@@ -263,10 +258,25 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
     @Override
     public void onBackPressed() {
         if (playerBox.getVisibility() == View.VISIBLE){
-            playerBox.setVisibility(View.INVISIBLE);
+//            Log.d(TAG, "onBackPressed");
+//            getSupportFragmentManager().beginTransaction().hide(youtubeFragment);
+//            youTubePlayer.pause();
+            playerBox.setVisibility(View.GONE);
+            if(homeIcon.isSelected()) {
+//                YoutubeRowFragment rowFrag = (YoutubeRowFragment) youtubeFragment.getFragmentManager().findFragmentById(R.id.container_row);
+//                int selected_vertical = rowFrag.getVerticalGridView().getSelectedPosition();
+//                ViewGroup rowContainer = (ViewGroup) rowFrag.getVerticalGridView().getChildAt(selected_vertical);  //row container
+//                ListRowView listRowView = (ListRowView) rowContainer.getChildAt(1);
+//                int selected_row = listRowView.getGridView().getSelectedPosition();
+//                listRowView.getGridView().getChildAt(selected_row).requestFocus();
+            }
+            else if(searchIcon.isSelected()) {
+//                ViewGroup search  = searchFragment.getView().findViewById(R.id.search_row);
+//                search.requestFocus();
+            }
         }
         else
-        super.onBackPressed();
+            super.onBackPressed();
     }
 
     private void checkYouTubeApi() {
