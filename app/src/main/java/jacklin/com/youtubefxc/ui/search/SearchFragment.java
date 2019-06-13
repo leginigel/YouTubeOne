@@ -27,7 +27,6 @@ import jacklin.com.youtubefxc.viewmodel.SearchViewModel;
  * A simple {@link Fragment} subclass.
  * ViewModel {@link SearchViewModel}
  */
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class SearchFragment extends Fragment {
 
     private static final String TAG = SearchFragment.class.getSimpleName();

@@ -34,7 +34,6 @@ public class SearchRowFragment extends YoutubeRowFragment {
         return new SearchRowFragment();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

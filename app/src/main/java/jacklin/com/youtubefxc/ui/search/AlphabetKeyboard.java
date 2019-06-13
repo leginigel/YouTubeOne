@@ -32,7 +32,7 @@ public class AlphabetKeyboard extends Fragment {
     private SearchViewModel mViewModel;
     public static int OutId_Down, OutId_Left;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

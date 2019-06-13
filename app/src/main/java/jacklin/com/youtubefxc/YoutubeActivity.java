@@ -1,5 +1,6 @@
 package jacklin.com.youtubefxc;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -23,6 +24,7 @@ import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
 import jacklin.com.youtubefxc.api.YoutubeService;
+import jacklin.com.youtubefxc.data.YouTubeVideo;
 import jacklin.com.youtubefxc.ui.BlankFragment;
 import jacklin.com.youtubefxc.ui.PlayerControlsFragment;
 import jacklin.com.youtubefxc.ui.search.SearchFragment;
@@ -30,19 +32,21 @@ import jacklin.com.youtubefxc.ui.search.SearchRowFragment;
 import jacklin.com.youtubefxc.ui.search.SuggestListAdapter;
 import jacklin.com.youtubefxc.ui.youtube.YoutubeFragment;
 import jacklin.com.youtubefxc.ui.youtube.YoutubeRowFragment;
+import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
 
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.OnInitializedListener{
 
     private static final int RECOVERY_DIALOG_REQUEST = 1;
     private static String TAG = YoutubeActivity.class.getSimpleName();
     private PageCategory mPageCategory;
+    private YoutubeViewModel viewModel;
 
     private SearchFragment searchFragment;
     private YoutubeFragment youtubeFragment;
     private YouTubePlayerSupportFragment youTubePlayerFragment;
     private PlayerControlsFragment playerControlsFragment;
     private PlayerControlsFragment.MyPlaybackEventListener playbackEventListener;
+
     private YouTubePlayer youTubePlayer;
 
     private ImageView searchIcon, homeIcon, subIcon, folderIcon, settingIcon;
@@ -51,11 +55,14 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
     public enum PageCategory {
         Search, Home, Subscription, Library, Account, Setting
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.youtube_activity);
 
+        // Create fragment
+        viewModel = ViewModelProviders.of(this).get(YoutubeViewModel.class);
         searchFragment = SearchFragment.newInstance();
         youtubeFragment = YoutubeFragment.newInstance();
         playerControlsFragment = PlayerControlsFragment.newInstance();
@@ -71,29 +78,33 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
                     .commit();
         }
 
+        // initial playback
         playbackEventListener = playerControlsFragment.getPlaybackEventListener();
         youTubePlayerFragment.initialize(YoutubeService.key, this);
 
         playerBox = findViewById(R.id.fragment_youtube_player);
         playerBox.setVisibility(View.INVISIBLE);
         playerBox.setOnKeyListener((v, keyCode, event) -> {
-            if(event.getAction() == KeyEvent.ACTION_DOWN) {
-                if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_UP
-                || keyCode == KeyEvent.KEYCODE_ENTER) {
+            if(!viewModel.getRelated()) {
+                if(event.getAction() == KeyEvent.ACTION_DOWN) {
+                    if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_UP
+                            || keyCode == KeyEvent.KEYCODE_ENTER) {
 //                    Log.d("onKey", "KEYCODE_DPAD_DOWN");
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
-                    if(prev != null) {
-                        ft.remove(prev);
-                    }
+                        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                        Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+                        if(prev != null) {
+                            ft.remove(prev);
+                        }
 //                getSupportFragmentManager().beginTransaction().addToBackStack(null);
-                    playerControlsFragment.show(ft, "dialog");
-                    return true;
+                        playerControlsFragment.show(ft, "dialog");
+                        return true;
+                    }
                 }
             }
             return false;
         });
 
+        // setting Home Page View
         ViewGroup leftNav = findViewById(R.id.left_nav);
         leftNav.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
@@ -215,12 +226,15 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
         return youTubePlayer;
     }
 
-    public PlayerControlsFragment getPlayerControlsFragment() {
-        return playerControlsFragment;
-    }
-
-    public YouTubePlayer.Provider getYouTubePlayerProvider() {
-        return (YouTubePlayerSupportFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_youtube_player);
+    public void playVideo(YouTubeVideo video){
+        if (playerBox.getVisibility() != View.VISIBLE) {
+            viewModel.setRelated(true);
+            viewModel.searchRelatedVideo(video.getId());
+            playerControlsFragment.setVideo(video);
+            playerBox.setVisibility(View.VISIBLE);
+            playerBox.requestFocus();
+            youTubePlayer.loadVideo(video.getId());
+        }
     }
 
     @Override
@@ -271,8 +285,8 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
 //                listRowView.getGridView().getChildAt(selected_row).requestFocus();
             }
             else if(searchIcon.isSelected()) {
-//                ViewGroup search  = searchFragment.getView().findViewById(R.id.search_row);
-//                search.requestFocus();
+                ViewGroup search  = searchFragment.getView().findViewById(R.id.search_row);
+                search.requestFocus();
             }
         }
         else

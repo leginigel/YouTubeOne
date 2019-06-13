@@ -20,7 +20,6 @@ import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
 /**
  * {@link YoutubeRowFragment} subclass.
  */
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class MusicFragment extends YoutubeRowFragment {
     public static MusicFragment newInstance() {
         return new MusicFragment();
@@ -31,6 +30,7 @@ public class MusicFragment extends YoutubeRowFragment {
     private Map<String, List<YouTubeVideo>> mMusicChannel;
     private final YoutubeFragment.TabCategory mTabCategory = YoutubeFragment.TabCategory.Music;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

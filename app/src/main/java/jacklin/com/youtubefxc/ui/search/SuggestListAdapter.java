@@ -23,7 +23,6 @@ import jacklin.com.youtubefxc.R;
 import jacklin.com.youtubefxc.ui.youtube.YoutubeRowFragment;
 import jacklin.com.youtubefxc.viewmodel.SearchViewModel;
 
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class SuggestListAdapter extends RecyclerView.Adapter<SuggestListAdapter.ViewHolder> {
 
     private String [] default_suggestion = {

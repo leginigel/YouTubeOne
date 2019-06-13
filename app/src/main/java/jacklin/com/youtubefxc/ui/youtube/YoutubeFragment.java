@@ -24,7 +24,6 @@ import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
  * A simple {@link Fragment} subclass.
  * ViewModel {@link YoutubeViewModel}
  */
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class YoutubeFragment extends Fragment {
 
     private final static String TAG = YoutubeFragment.class.getSimpleName();

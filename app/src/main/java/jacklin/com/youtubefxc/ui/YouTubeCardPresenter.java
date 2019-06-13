@@ -61,7 +61,7 @@ public class YouTubeCardPresenter extends Presenter {
         return new CardViewHolder(view);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Object o) {
         Log.v("YouTubeCardPresenter" , "onBindViewHolder");
@@ -104,7 +104,6 @@ public class YouTubeCardPresenter extends Presenter {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     protected void setFocusNavigation(CardViewHolder cardViewHolder){
         switch (((YoutubeFragment) mFragment).getTabCategory()){
             case Recommended:
@@ -160,7 +159,7 @@ public class YouTubeCardPresenter extends Presenter {
         private TextView mTitle;
         private TextView mContent;
 //        private CustomCardView mImageCardView;
-        private CardViewHolder(View view) {
+        public CardViewHolder(View view) {
             super(view);
 //            mImageCardView = (CustomCardView) view;
             view.setFocusable(true);
@@ -215,6 +214,10 @@ public class YouTubeCardPresenter extends Presenter {
 
         public ImageCardView getImageCardView() {
             return mImageCardView;
+        }
+
+        public TextView getTitle() {
+            return mTitle;
         }
     }
 }
