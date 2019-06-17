@@ -93,7 +93,7 @@ public class YouTubeCardPresenter extends Presenter {
         Glide.with(mContext)
                 .asBitmap()
 //                .placeholder(mContext.getResources().getDrawable(R.drawable.ic_folder_24dp))
-                .load("https://i.ytimg.com/vi/"+ youTubeVideo.getId() +"/0.jpg")
+                .load(youTubeVideo.getId() != null ? "https://i.ytimg.com/vi/"+ youTubeVideo.getId() +"/0.jpg" : null)
                 .into(imgCard.getMainImageView());
     }
 
@@ -108,6 +108,9 @@ public class YouTubeCardPresenter extends Presenter {
         switch (((YoutubeFragment) mFragment).getTabCategory()){
             case Recommended:
                 cardViewHolder.view.setNextFocusUpId(R.id.recommend_btn);
+                break;
+            case Latest:
+                cardViewHolder.view.setNextFocusUpId(R.id.latest_btn);
                 break;
             case Music:
                 cardViewHolder.view.setNextFocusUpId(R.id.music_btn);
@@ -146,7 +149,23 @@ public class YouTubeCardPresenter extends Presenter {
     }
 
     public void setPressBack(View v){
-        mTopNav.requestFocus();
+        switch (((YoutubeFragment) mFragment).getTabCategory()){
+            case Recommended:
+                mTopNav.getChildAt(0).requestFocus();
+                break;
+            case Latest:
+                mTopNav.getChildAt(1).requestFocus();
+                break;
+            case Music:
+                mTopNav.getChildAt(2).requestFocus();
+                break;
+            case Entertainment:
+                mTopNav.getChildAt(3).requestFocus();
+                break;
+            case Gaming:
+                mTopNav.getChildAt(4).requestFocus();
+                break;
+        }
         ImageCardView imgCard = v.findViewById(R.id.img_card_view);
         imgCard.setInfoAreaBackgroundColor(mContext.getResources().getColor(R.color.background));
         ((TextView) imgCard.findViewById(R.id.title_text)).setTextColor(Color.WHITE);

@@ -72,14 +72,14 @@ public class SuggestListAdapter extends RecyclerView.Adapter<SuggestListAdapter.
         else{
             viewHolder.imageView.setVisibility(View.GONE);
             viewHolder.textView.setText(items.get(i));
-            viewHolder.cardView.setOnClickListener(v ->{
-                mSearchFragment.getRow().setVisibility(View.VISIBLE);
-                vm.searchRx(viewHolder.textView.getText().toString());
-                vm.setIsLoading(true);
-                resize(5);
-                vm.setQueryString(viewHolder.textView.getText().toString(), true);
-            });
         }
+        viewHolder.cardView.setOnClickListener(v ->{
+            mSearchFragment.getRow().setVisibility(View.VISIBLE);
+            vm.searchRx(viewHolder.textView.getText().toString());
+            vm.setIsLoading(true);
+            resize(5);
+            vm.setQueryString(viewHolder.textView.getText().toString(), true);
+        });
 
         setOnKeyListener(viewHolder.cardView, i);
     }
@@ -108,6 +108,12 @@ public class SuggestListAdapter extends RecyclerView.Adapter<SuggestListAdapter.
                 else if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
                     OutId = i;
                     mSearchFragment.setFocus(SearchFragment.FocusLocation.Suggestion);
+                }
+                if(keyCode == KeyEvent.KEYCODE_BACK){
+                    OutId = i;
+                    mLeftNav.getChildAt(1).requestFocus();
+                    mSearchFragment.setFocus(SearchFragment.FocusLocation.Suggestion);
+                    return true;
                 }
             }
             return false;

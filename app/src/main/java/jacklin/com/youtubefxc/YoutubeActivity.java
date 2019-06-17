@@ -185,15 +185,21 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
                         SearchRowFragment searchRow = (SearchRowFragment) searchFragment.getFragmentManager().findFragmentById(R.id.search_row);
                         if(searchFragment.getFocus() == SearchFragment.FocusLocation.Suggestion) {
                             suggestions.getChildAt(SuggestListAdapter.OutId).requestFocus();
+                            return true;
                         }
                         else if(searchFragment.getFocus() == SearchFragment.FocusLocation.SearchRow){
 //                            searchRow.requestFocus();
                             YoutubeRowFragment.highlightRowFocus(this, searchRow);
                             searchIcon.setNextFocusRightId(R.id.search_row);
-                            return false;
                         }
-                        return true;
+                        else if(searchFragment.getFocus() == SearchFragment.FocusLocation.Keyboard) {
+                            searchIcon.setNextFocusRightId(SearchFragment.KeyboardFocusId);
+                        }
                     }
+                }
+                if(KeyEvent.KEYCODE_BACK == keyCode){
+                    if(!homeIcon.isSelected()) homeIcon.requestFocus();
+                    return true;
                 }
             }
             return false;

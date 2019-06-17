@@ -113,6 +113,12 @@ public class YoutubeFragment extends Fragment {
                     button.setSelected(true);
                     mLeftNav.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
                 }
+                if(keyCode == KeyEvent.KEYCODE_BACK) {
+                    button.setSelected(true);
+                    mLeftNav.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+                    mLeftNav.getChildAt(2).requestFocus();
+                    return true;
+                }
             }
             return false;
         });
