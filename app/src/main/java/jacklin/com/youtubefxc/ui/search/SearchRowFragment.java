@@ -1,10 +1,8 @@
 package jacklin.com.youtubefxc.ui.search;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.FocusHighlight;
 import android.support.v17.leanback.widget.ListRow;
@@ -72,12 +70,7 @@ public class SearchRowFragment extends YoutubeRowFragment {
 
     public void clear(){
         if(mRowsAdapter != null)
-        mRowsAdapter.clear();
-    }
-
-    @Override
-    public ArrayObjectAdapter getCardsAdapter() {
-        return mCardsAdapter;
+            mRowsAdapter.clear();
     }
 
     @Override

@@ -41,23 +41,6 @@ public class YouTubeCardPresenter extends Presenter {
         mTopNav = ((FragmentActivity) mContext).findViewById(R.id.top_nav);
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.card_image, viewGroup, false);
-
-//        CustomCardView customCardView = new CustomCardView(mContext);
-//        customCardView.setNextFocusLeftId(R.id.home_btn);
-//        customCardView.setCardType(ImageCardView.CARD_TYPE_INFO_UNDER);
-//        customCardView.setInfoVisibility(BaseCardView.CARD_REGION_VISIBLE_ACTIVATED);
-//        customCardView.setFocusable(true);
-//        customCardView.setFocusableInTouchMode(true);
-//        customCardView.setMainImageDimensions(500, 281);
-//        customCardView.setInfoAreaBackgroundColor(mContext.getResources().getColor(R.color.background));
-//        customCardView.setBackgroundColor(mContext.getResources().getColor(R.color.card_loading));
-//
-//        ((TextView) customCardView.findViewById(R.id.title_text)).setMaxLines(2);
-//        ((TextView) customCardView.findViewById(R.id.title_text)).setTextSize(20);
-//        ((TextView) customCardView.findViewById(R.id.content_text)).setLines(2);
-//        ((TextView) customCardView.findViewById(R.id.content_text)).setTextSize(14);
-//        ((TextView) customCardView.findViewById(R.id.content_text))
-//                .setTextColor(mContext.getResources().getColor(R.color.card_content));
         return new CardViewHolder(view);
     }
 
@@ -105,23 +88,6 @@ public class YouTubeCardPresenter extends Presenter {
     }
 
     protected void setFocusNavigation(CardViewHolder cardViewHolder){
-        switch (((YoutubeFragment) mFragment).getTabCategory()){
-            case Recommended:
-                cardViewHolder.view.setNextFocusUpId(R.id.recommend_btn);
-                break;
-            case Latest:
-                cardViewHolder.view.setNextFocusUpId(R.id.latest_btn);
-                break;
-            case Music:
-                cardViewHolder.view.setNextFocusUpId(R.id.music_btn);
-                break;
-            case Entertainment:
-                cardViewHolder.view.setNextFocusUpId(R.id.entertainment_btn);
-                break;
-            case Gaming:
-                cardViewHolder.view.setNextFocusUpId(R.id.gaming_btn);
-                break;
-        }
         cardViewHolder.view.setOnKeyListener((v, keyCode, event) -> {
             if(event.getAction() == KeyEvent.ACTION_DOWN){
                 setDefaultFocus(v, keyCode);
@@ -167,9 +133,24 @@ public class YouTubeCardPresenter extends Presenter {
                 break;
         }
         ImageCardView imgCard = v.findViewById(R.id.img_card_view);
+        setCardUnfocused(imgCard);
+    }
+
+    public void setCardUnfocused(ImageCardView imgCard){
         imgCard.setInfoAreaBackgroundColor(mContext.getResources().getColor(R.color.background));
         ((TextView) imgCard.findViewById(R.id.title_text)).setTextColor(Color.WHITE);
+        ((TextView) imgCard.findViewById(R.id.content_text))
+                .setTextColor(mContext.getResources().getColor(R.color.card_content_text));
     }
+
+    public void setCardFocused(ImageCardView imgCard){
+        imgCard.setInfoAreaBackgroundColor(Color.WHITE);
+        ((TextView) imgCard.findViewById(R.id.title_text))
+                .setTextColor(mContext.getResources().getColor(R.color.background));
+        ((TextView) imgCard.findViewById(R.id.content_text))
+                .setTextColor(mContext.getResources().getColor(R.color.card_content_text_focused));
+    }
+
 
     public class CardViewHolder extends Presenter.ViewHolder{
 
@@ -177,19 +158,20 @@ public class YouTubeCardPresenter extends Presenter {
         private TextView mTimeStamp;
         private TextView mTitle;
         private TextView mContent;
-//        private CustomCardView mImageCardView;
+        //        private CustomCardView mImageCardView;
         public CardViewHolder(View view) {
             super(view);
 //            mImageCardView = (CustomCardView) view;
             view.setFocusable(true);
             view.setFocusableInTouchMode(true);
             view.setClickable(true);
-            view.setNextFocusLeftId(R.id.home_btn);
+//            view.setNextFocusLeftId(R.id.home_btn);
 
             mImageCardView = view.findViewById(R.id.img_card_view);
             mTimeStamp = view.findViewById(R.id.img_card_time_stamp);
             mTitle = mImageCardView.findViewById(R.id.title_text);
             mContent = mImageCardView.findViewById(R.id.content_text);
+            mContent.setTextColor(mContext.getResources().getColor(R.color.card_content_text));
 
             mImageCardView.setCardType(ImageCardView.CARD_TYPE_INFO_UNDER);
             mImageCardView.setInfoVisibility(BaseCardView.CARD_REGION_VISIBLE_ACTIVATED);

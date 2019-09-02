@@ -26,7 +26,7 @@ import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import jacklin.com.youtubefxc.api.YoutubeService;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
 import jacklin.com.youtubefxc.ui.BlankFragment;
-import jacklin.com.youtubefxc.ui.PlayerControlsFragment;
+import jacklin.com.youtubefxc.ui.player.PlayerControlsFragment;
 import jacklin.com.youtubefxc.ui.search.SearchFragment;
 import jacklin.com.youtubefxc.ui.search.SearchRowFragment;
 import jacklin.com.youtubefxc.ui.search.SuggestListAdapter;
@@ -198,8 +198,10 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
                     }
                 }
                 if(KeyEvent.KEYCODE_BACK == keyCode){
-                    if(!homeIcon.isSelected()) homeIcon.requestFocus();
-                    return true;
+                    if(!homeIcon.isFocused()){
+                        homeIcon.requestFocus();
+                        return true;
+                    }
                 }
             }
             return false;
@@ -282,15 +284,7 @@ public class YoutubeActivity extends FragmentActivity implements YouTubePlayer.O
 //            getSupportFragmentManager().beginTransaction().hide(youtubeFragment);
 //            youTubePlayer.pause();
             playerBox.setVisibility(View.GONE);
-            if(homeIcon.isSelected()) {
-//                YoutubeRowFragment rowFrag = (YoutubeRowFragment) youtubeFragment.getFragmentManager().findFragmentById(R.id.container_row);
-//                int selected_vertical = rowFrag.getVerticalGridView().getSelectedPosition();
-//                ViewGroup rowContainer = (ViewGroup) rowFrag.getVerticalGridView().getChildAt(selected_vertical);  //row container
-//                ListRowView listRowView = (ListRowView) rowContainer.getChildAt(1);
-//                int selected_row = listRowView.getGridView().getSelectedPosition();
-//                listRowView.getGridView().getChildAt(selected_row).requestFocus();
-            }
-            else if(searchIcon.isSelected()) {
+            if(searchIcon.isSelected()) {
                 ViewGroup search  = searchFragment.getView().findViewById(R.id.search_row);
                 search.requestFocus();
             }

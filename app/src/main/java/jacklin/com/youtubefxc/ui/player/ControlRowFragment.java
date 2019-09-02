@@ -1,8 +1,7 @@
-package jacklin.com.youtubefxc.ui;
+package jacklin.com.youtubefxc.ui.player;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,24 +11,20 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.ListRowView;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.RowHeaderPresenter;
-import android.support.v17.leanback.widget.RowHeaderView;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.view.KeyEvent;
 import android.view.View;
-import android.widget.TextView;
+import android.view.ViewGroup;
 
-import java.util.List;
-import java.util.Map;
-
-import jacklin.com.youtubefxc.R;
 import jacklin.com.youtubefxc.data.YouTubeVideo;
-import jacklin.com.youtubefxc.ui.player.ControlCardPresenter;
+import jacklin.com.youtubefxc.ui.YouTubeCardPresenter;
 import jacklin.com.youtubefxc.ui.youtube.YoutubeRowFragment;
 import jacklin.com.youtubefxc.viewmodel.YoutubeViewModel;
+
+import java.util.List;
 
 public class ControlRowFragment extends YoutubeRowFragment {
 
@@ -52,12 +47,18 @@ public class ControlRowFragment extends YoutubeRowFragment {
         mCardsAdapter.addAll(0, videos);
         mRow = new ListRow(new HeaderItem("Suggestion "), mCardsAdapter);
         mRowsAdapter.add(mRow);
-
     }
 
     @Override
     public void initial() {
-        setExpand(false);
+
+        PlayerControlsFragment playerControlsFragment =
+                (PlayerControlsFragment) getActivity().getSupportFragmentManager().findFragmentByTag("dialog");
+        if(playerControlsFragment.getPlayerStateChangeListener()
+                .getPlayerState() == PlayerControlsFragment.PlayerState.VIDEO_ENDED)
+            setExpand(true);
+        else
+            setExpand(false);
         mCardPresenter = new ControlCardPresenter();
         mListRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_XSMALL);
         mListRowPresenter.setShadowEnabled(true);
@@ -89,19 +90,29 @@ public class ControlRowFragment extends YoutubeRowFragment {
                                    RowPresenter.ViewHolder viewHolder1, Row row) {
             YouTubeCardPresenter.CardViewHolder cardViewHolder = (YouTubeCardPresenter.CardViewHolder) viewHolder;
             if(o instanceof YouTubeVideo) {
+                YouTubeCardPresenter cardPresenter = getCardPresenter();
                 // Reset the ImageCardView Info Color
                 if(imgCard != null){
+                    cardPresenter.setCardUnfocused(imgCard);
                     imgCard.setInfoAreaBackgroundColor(Color.TRANSPARENT);
-                    ((TextView) imgCard.findViewById(R.id.title_text)).setTextColor(Color.WHITE);
                 }
 
                 // Set the Selected Color
                 imgCard = cardViewHolder.getImageCardView();
-                imgCard.setInfoAreaBackgroundColor(Color.WHITE);
-                ((TextView) imgCard.findViewById(R.id.title_text))
-                        .setTextColor(getResources().getColor(R.color.background));
+                cardPresenter.setCardFocused(imgCard);
             }
         }
 
+    }
+
+    @Override
+    public YouTubeCardPresenter getCardPresenter() {
+        return mCardPresenter;
+    }
+
+    public void setRowAlpha(float alpha) {
+        ViewGroup rowContainer = (ViewGroup) getVerticalGridView().getChildAt(0);
+        ListRowView listRowView = (ListRowView) rowContainer.getChildAt(1);
+        listRowView.setAlpha(alpha);
     }
 }

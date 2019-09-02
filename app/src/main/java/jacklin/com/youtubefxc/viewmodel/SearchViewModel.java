@@ -151,24 +151,24 @@ public class SearchViewModel extends ViewModel {
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onNext(Response<VideoResponse> videoResponse) {
-                            Log.d("SearchViewModel", "videoResponse : "
-                                    + videoResponse.body().getItems().get(0).getSnippet().getTitle());
-                            for (int i = 0;i < temp.size();i++){
-                                if(temp.get(i).getId().getVideoId() != null &&
-                                        temp.get(i).getId().getVideoId().equals(videoResponse.body().getItems().get(i).getId())) {
+                        Log.d("SearchViewModel", "videoResponse : "
+                                + videoResponse.body().getItems().get(0).getSnippet().getTitle());
+                        for (int i = 0;i < temp.size();i++){
+                            if(temp.get(i).getId().getVideoId() != null &&
+                                    temp.get(i).getId().getVideoId().equals(videoResponse.body().getItems().get(i).getId())) {
 //                                    Log.d("test", "onActivityCreated:" + videoResponse.body().getItems().get(i).getSnippet().getTitle());
-                                    ytv.add(
-                                            new YouTubeVideo(
-                                                    temp.get(i).getId().getVideoId(),
-                                                    temp.get(i).getSnippet().getTitle(),
-                                                    temp.get(i).getSnippet().getChannelTitle(),
-                                                    videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
-                                                    videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
-                                                    videoResponse.body().getItems().get(i).getContentDetails().getDuration()
-                                            ));
-                                }
+                                ytv.add(
+                                        new YouTubeVideo(
+                                                temp.get(i).getId().getVideoId(),
+                                                temp.get(i).getSnippet().getTitle(),
+                                                temp.get(i).getSnippet().getChannelTitle(),
+                                                videoResponse.body().getItems().get(i).getStatistics().getViewCount(),
+                                                videoResponse.body().getItems().get(i).getSnippet().getPublishedAt(),
+                                                videoResponse.body().getItems().get(i).getContentDetails().getDuration()
+                                        ));
                             }
-                            Log.d("SearchViewModel", "onNext :" + ytv.size());
+                        }
+                        Log.d("SearchViewModel", "onNext :" + ytv.size());
                     }
 
                     @Override
