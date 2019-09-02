@@ -31,11 +31,11 @@ This TV App develops with [Leanback][leanback] library and [YouTube API][youtube
 
 [Player][playerfragment]
 
-![play](./screenshots/play.png)
+![play](./screenshots/play.PNG)
 
-![pause](./screenshots/pause.png)
+![pause](./screenshots/pause.PNG)
 
-![suggestion](./screenshots/suggestion.png)
+![suggestion](./screenshots/suggestion.PNG)
 
 ![postplay](./screenshots/postplay.gif)
 
@@ -43,7 +43,7 @@ This TV App develops with [Leanback][leanback] library and [YouTube API][youtube
 
 [searchfragment]: ./app/src/main/java/jacklin/com/youtubefxc/ui/search/SearchFragment.java
 
-[playerfragment]: ./app/src/main/java/jacklin/com/youtubefxc/ui/player/PlayerControlsFragmentFragment.java
+[playerfragment]: ./app/src/main/java/jacklin/com/youtubefxc/ui/player/PlayerControlsFragment.java
 
 [leanback]: https://github.com/googlesamples/androidtv-Leanback
 [youtube]: https://developers.google.com/youtube/v3/getting-started
